@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
-  <title>My Wallet for OpenClaw icon</title>
-  <desc>Rounded dark card with a cyan wallet glyph and OpenClaw label</desc>
+  <title>My Wallet icon</title>
+  <desc>Rounded dark card with a cyan wallet glyph and My Wallet label</desc>
   <defs>
     <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
       <stop offset="0%" stop-color="#081826" />
@@ -18,5 +18,5 @@
   <circle cx="336" cy="254" r="10" fill="#4cffb6" />
   <path d="M170 198h126" stroke="#7ee8ff" stroke-width="18" stroke-linecap="round" />
   <path d="M126 400h260" stroke="#7ee8ff" stroke-opacity="0.65" stroke-width="16" stroke-linecap="round" />
-  <text x="256" y="456" text-anchor="middle" fill="#d8f7ff" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">My Wallet for OpenClaw</text>
+  <text x="256" y="456" text-anchor="middle" fill="#d8f7ff" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="700">My Wallet</text>
 </svg>
