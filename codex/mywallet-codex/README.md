@@ -1,19 +1,14 @@
-# My Wallet for Codex
+# **My Wallet** for Codex
 
-My Wallet for Codex is based on [MyTonWallet](https://mytonwallet.io) — a well-established open-source self-custodial wallet with 10M+ users, audited by CertiK.
+**My Wallet** provides full self-custodial wallet functionality for Codex agents, while providing flexible control options for their users.
 
-Use My Wallet in Codex to create a wallet, check balances and activity, sign messages, and prepare transfers.
+It lets Codex create multichain wallets, check balances, tokens, portfolio value, staking, collectibles, historical prices, and recent activity, manage saved addresses, approval settings, and autonomy modes, prepare transfers with approval-aware flows, swap/trade tokens, sign messages, etc.
+
+It is based on [**MyTonWallet**](https://mytonwallet.io) — a well-established open-source self-custodial wallet with **10M+** users, audited by **CertiK**.
+
 
 ## Install
-- Marketplace file in this repo: `.agents/plugins/marketplace.json`
-- Plugin folder in this repo: `codex/mywallet-codex/`
-- Copy the marketplace file or its plugin entry into your Codex marketplace setup.
-- Make sure the plugin path points to `codex/mywallet-codex/`, then restart Codex and install **My Wallet for Codex**.
 
-## Included tools
-- wallet creation and receive addresses
-- balances, tokens, portfolio, staking, and recent activity
-- transfer preparation and approval flows
-- message signing
+Use the marketplace file `.agents/plugins/marketplace.json` or the plugin folder `codex/mywallet-codex/`. Copy the marketplace file or its plugin entry into your Codex marketplace setup, make sure the plugin path points to `codex/mywallet-codex/`, then restart Codex and install **My Wallet** for Codex.
 
-More details: <https://agents.mywallet.io>
+Website: [agents.mywallet.io](https://agents.mywallet.io)

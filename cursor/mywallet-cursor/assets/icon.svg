@@ -1,19 +1,22 @@
-<svg width="451" height="451" viewBox="0 0 451 451" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_2150_297)">
-<rect width="451" height="451" fill="url(#paint0_linear_2150_297)"/>
-<path d="M294.187 -182.054C294.204 -194.778 303.671 -209.223 315.332 -214.318L336.096 -223.39C341.926 -225.937 346.645 -222.844 346.637 -216.482L345.977 255.868C345.959 268.593 336.492 283.038 324.832 288.132L304.067 297.204C298.237 299.751 293.518 296.658 293.527 290.296L294.187 -182.054Z" fill="white"/>
-<path d="M106.671 196.028C106.689 183.304 116.156 168.859 127.816 163.764L148.581 154.692C154.411 152.145 159.13 155.238 159.121 161.6L158.462 633.956C158.444 646.68 148.977 661.126 137.317 666.22L116.552 675.292C110.722 677.839 106.003 674.746 106.011 668.384L106.671 196.028Z" fill="white"/>
-<path d="M199.642 139.337C199.662 132.975 204.408 125.761 210.242 123.223L241.587 109.593C247.421 107.055 252.135 110.156 252.115 116.519L251.509 312.354C251.489 318.717 246.743 325.931 240.909 328.468L209.564 342.099C203.73 344.636 199.016 341.535 199.036 335.173L199.642 139.337Z" fill="white"/>
-<path d="M114.52 194.876C108.158 183.856 112.424 170.727 124.048 165.552L144.749 156.335C150.561 153.747 157.852 156.116 161.033 161.626L248.226 312.649C251.407 318.159 249.274 324.723 243.462 327.311L212.237 341.213C206.425 343.801 199.134 341.432 195.953 335.922L114.52 194.876Z" fill="white" fill-opacity="0.65"/>
-<path d="M202.463 138.601C199.282 133.091 201.415 126.526 207.227 123.938L238.452 110.036C244.264 107.448 251.555 109.817 254.736 115.327L336.171 256.377C342.534 267.397 338.268 280.526 326.643 285.701L305.942 294.918C300.13 297.506 292.839 295.137 289.658 289.627L202.463 138.601Z" fill="white" fill-opacity="0.65"/>
-</g>
-<defs>
-<linearGradient id="paint0_linear_2150_297" x1="225.5" y1="0" x2="225.5" y2="451" gradientUnits="userSpaceOnUse">
-<stop stop-color="#404040"/>
-<stop offset="1"/>
-</linearGradient>
-<clipPath id="clip0_2150_297">
-<rect width="451" height="451" fill="white"/>
-</clipPath>
-</defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title>My Wallet for OpenClaw icon</title>
+  <desc>Rounded dark card with a cyan wallet glyph and OpenClaw label</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#081826" />
+      <stop offset="100%" stop-color="#10324a" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#2ce6ff" />
+      <stop offset="100%" stop-color="#4cffb6" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bg)" />
+  <rect x="92" y="140" width="328" height="228" rx="44" fill="#0f2232" stroke="#2ce6ff" stroke-width="16" />
+  <path d="M146 214c0-17.673 14.327-32 32-32h172c17.673 0 32 14.327 32 32v80c0 17.673-14.327 32-32 32H178c-17.673 0-32-14.327-32-32v-80Z" fill="url(#accent)" opacity="0.18" />
+  <rect x="278" y="225" width="94" height="58" rx="26" fill="#09131d" stroke="#4cffb6" stroke-width="10" />
+  <circle cx="336" cy="254" r="10" fill="#4cffb6" />
+  <path d="M170 198h126" stroke="#7ee8ff" stroke-width="18" stroke-linecap="round" />
+  <path d="M126 400h260" stroke="#7ee8ff" stroke-opacity="0.65" stroke-width="16" stroke-linecap="round" />
+  <text x="256" y="456" text-anchor="middle" fill="#d8f7ff" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">My Wallet for OpenClaw</text>
 </svg>

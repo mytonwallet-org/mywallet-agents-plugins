@@ -1,19 +1,14 @@
-# My Wallet for Claude Code
+# **My Wallet** for Claude Code
 
-My Wallet for Claude Code is based on [MyTonWallet](https://mytonwallet.io) — a well-established open-source self-custodial wallet with 10M+ users, audited by CertiK.
+**My Wallet** provides full self-custodial wallet functionality for Claude Code agents, while providing flexible control options for their users.
 
-Use My Wallet in Claude Code to create a wallet, check balances and activity, sign messages, and prepare transfers.
+It lets Claude Code create multichain wallets, check balances, tokens, portfolio value, staking, collectibles, historical prices, and recent activity, manage saved addresses, approval settings, and autonomy modes, prepare transfers with approval-aware flows, swap/trade tokens, sign messages, etc.
+
+It is based on [**MyTonWallet**](https://mytonwallet.io) — a well-established open-source self-custodial wallet with **10M+** users, audited by **CertiK**.
+
 
 ## Install
-- Marketplace file in this repo: `.claude-plugin/marketplace.json`
-- Plugin folder in this repo: `claude-code/mywallet-claude-code/`
-- Add this repository as a marketplace in Claude Code, then install **My Wallet for Claude Code**.
-- If you are installing from files, use the plugin folder above.
 
-## Included tools
-- wallet creation and receive addresses
-- balances, tokens, portfolio, staking, and recent activity
-- transfer preparation and approval flows
-- message signing
+Use the marketplace file `.claude-plugin/marketplace.json` or the plugin folder `claude-code/mywallet-claude-code/`. Add this repository as a marketplace in Claude Code, then install **My Wallet** for Claude Code. If you are installing from files, use the plugin folder directly.
 
-More details: <https://agents.mywallet.io>
+Website: [agents.mywallet.io](https://agents.mywallet.io)
