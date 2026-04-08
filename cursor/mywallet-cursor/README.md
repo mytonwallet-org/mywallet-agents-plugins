@@ -1,5 +1,7 @@
 # My Wallet for Cursor
 
+My Wallet for Cursor is based on [MyTonWallet](https://mytonwallet.io) — a well-established open-source self-custodial wallet with 10M+ users, audited by CertiK.
+
 Use My Wallet in Cursor to create a wallet, check balances and activity, sign messages, and prepare transfers.
 
 ## Install

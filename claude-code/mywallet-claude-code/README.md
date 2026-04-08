@@ -1,5 +1,7 @@
 # My Wallet for Claude Code
 
+My Wallet for Claude Code is based on [MyTonWallet](https://mytonwallet.io) — a well-established open-source self-custodial wallet with 10M+ users, audited by CertiK.
+
 Use My Wallet in Claude Code to create a wallet, check balances and activity, sign messages, and prepare transfers.
 
 ## Install

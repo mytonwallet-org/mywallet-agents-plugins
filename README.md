@@ -1,5 +1,7 @@
 # My Wallet Agents Plugins
 
+My Wallet Agents is based on [MyTonWallet](https://mytonwallet.io) — a well-established open-source self-custodial wallet with 10M+ users, audited by CertiK.
+
 My Wallet Agents Plugins is a public collection of My Wallet plugins for Cursor, Claude Code, and Codex.
 
 Website: <https://agents.mywallet.io>
