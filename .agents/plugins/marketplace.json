@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "schema": "codex-marketplace-v1",
+  "sourceOfTruth": {
+    "repository": "my-headless/scope-integrations",
+    "publishCommand": "npm run headless:publish-plugins"
+  },
+  "plugins": [
+    {
+      "id": "mywallet",
+      "name": "My Wallet for Codex",
+      "version": "4.7.6",
+      "path": "../../codex/mywallet-codex"
+    }
+  ]
+}

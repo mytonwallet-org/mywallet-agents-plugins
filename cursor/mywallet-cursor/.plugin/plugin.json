@@ -1,0 +1,20 @@
+{
+  "name": "mywallet",
+  "description": "My Wallet shared Open Plugins root with local MCP wiring and wallet workflow skills",
+  "author": {
+    "name": "My Wallet",
+    "url": "https://mywallet.io"
+  },
+  "homepage": "https://mywallet.io",
+  "license": "GPL-3.0-or-later",
+  "logo": "assets/icon.svg",
+  "keywords": [
+    "wallet",
+    "ton",
+    "mywallet",
+    "mcp",
+    "open-plugins"
+  ],
+  "skills": "./skills",
+  "mcpServers": "./.mcp.json"
+}

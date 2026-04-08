@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+  <title>My Wallet for OpenClaw listing screenshot</title>
+  <desc>Illustrative OpenClaw plugin listing and install verification mockup for the bundle</desc>
+  <defs>
+    <linearGradient id="page" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0b1320" />
+      <stop offset="100%" stop-color="#13283c" />
+    </linearGradient>
+    <linearGradient id="card" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#13263a" />
+      <stop offset="100%" stop-color="#1e3850" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#27ddff" />
+      <stop offset="100%" stop-color="#41ffb0" />
+    </linearGradient>
+  </defs>
+  <rect width="1440" height="900" fill="url(#page)" />
+  <rect x="72" y="60" width="1296" height="780" rx="32" fill="#08111a" stroke="#21415e" stroke-width="2" />
+  <rect x="72" y="60" width="1296" height="86" rx="32" fill="#0e1d2c" />
+  <circle cx="122" cy="103" r="10" fill="#ff5f56" />
+  <circle cx="154" cy="103" r="10" fill="#ffbd2e" />
+  <circle cx="186" cy="103" r="10" fill="#27c93f" />
+  <text x="246" y="112" fill="#d7f6ff" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">OpenClaw Plugins</text>
+
+  <rect x="128" y="206" width="512" height="530" rx="28" fill="url(#card)" stroke="#2d4f71" stroke-width="2" />
+  <rect x="176" y="248" width="120" height="120" rx="28" fill="#0f2130" stroke="#2ce6ff" stroke-width="8" />
+  <path d="M204 294h56" stroke="#7ee8ff" stroke-width="10" stroke-linecap="round" />
+  <rect x="218" y="310" width="56" height="38" rx="18" fill="#09131d" stroke="#4cffb6" stroke-width="6" />
+  <circle cx="252" cy="329" r="7" fill="#4cffb6" />
+  <text x="330" y="292" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="700">My Wallet for OpenClaw</text>
+  <text x="330" y="338" fill="#8edff1" font-family="Inter, Arial, sans-serif" font-size="24">Local TON wallet bundle for approval-aware OpenClaw sessions</text>
+  <rect x="176" y="404" width="146" height="42" rx="21" fill="url(#accent)" />
+  <text x="249" y="432" text-anchor="middle" fill="#04121c" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700">Bundle</text>
+  <rect x="336" y="404" width="196" height="42" rx="21" fill="#102334" stroke="#2ce6ff" stroke-width="2" />
+  <text x="434" y="432" text-anchor="middle" fill="#bcefff" font-family="Inter, Arial, sans-serif" font-size="20">Compatibility id: mywallet</text>
+  <text x="176" y="498" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700">Included in the artifact</text>
+  <text x="176" y="548" fill="#d6f3ff" font-family="Inter, Arial, sans-serif" font-size="24">• Bundle-root MCP wiring with a local subprocess launcher</text>
+  <text x="176" y="592" fill="#d6f3ff" font-family="Inter, Arial, sans-serif" font-size="24">• Wallet onboarding and approval workflow skills</text>
+  <text x="176" y="636" fill="#d6f3ff" font-family="Inter, Arial, sans-serif" font-size="24">• Release-oriented README, metadata, and listing assets</text>
+  <text x="176" y="680" fill="#d6f3ff" font-family="Inter, Arial, sans-serif" font-size="24">• Installable staged directory plus `.tgz` bundle archive</text>
+
+  <rect x="716" y="206" width="592" height="530" rx="28" fill="#0d1824" stroke="#2d4f71" stroke-width="2" />
+  <text x="764" y="266" fill="#ffffff" font-family="JetBrains Mono, Menlo, monospace" font-size="28" font-weight="700">Install and verify</text>
+  <text x="764" y="332" fill="#7ee8ff" font-family="JetBrains Mono, Menlo, monospace" font-size="24">$ npm run build:headless:openclaw:bundle</text>
+  <text x="764" y="384" fill="#7ee8ff" font-family="JetBrains Mono, Menlo, monospace" font-size="24">$ openclaw plugins install ./headless/platforms/openclaw/bundle/.dist/mywallet.tgz</text>
+  <text x="764" y="436" fill="#7ee8ff" font-family="JetBrains Mono, Menlo, monospace" font-size="24">$ openclaw plugins inspect mywallet</text>
+  <rect x="764" y="486" width="496" height="188" rx="22" fill="#071018" stroke="#21415e" stroke-width="2" />
+  <text x="798" y="538" fill="#e7fbff" font-family="JetBrains Mono, Menlo, monospace" font-size="22">Format: bundle</text>
+  <text x="798" y="582" fill="#e7fbff" font-family="JetBrains Mono, Menlo, monospace" font-size="22">Subtype: codex</text>
+  <text x="798" y="626" fill="#e7fbff" font-family="JetBrains Mono, Menlo, monospace" font-size="22">MCP: bundle-root .mcp.json</text>
+  <text x="798" y="670" fill="#e7fbff" font-family="JetBrains Mono, Menlo, monospace" font-size="22">Skills: onboarding, approvals</text>
+
+  <text x="720" y="806" fill="#8edff1" font-family="Inter, Arial, sans-serif" font-size="22">Illustrative listing asset generated inside the repository for bundle publication readiness.</text>
+</svg>

@@ -1,0 +1,6 @@
+{
+  "name": "mywallet-codex-offering-payload",
+  "version": "4.7.6",
+  "private": true,
+  "description": "Bundled My Wallet CLI and MCP launch payload for the direct-install Codex offering"
+}
