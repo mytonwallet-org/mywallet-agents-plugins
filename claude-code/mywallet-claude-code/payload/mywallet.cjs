@@ -30,7 +30,7 @@ void runCliEntry().then(() => {
 async function runCliEntry() {
   const {
     runHeadlessCli
-  } = await Promise.all(/* import() */[__webpack_require__.e(755), __webpack_require__.e(216), __webpack_require__.e(502)]).then(__webpack_require__.bind(__webpack_require__, 70502));
+  } = await Promise.all(/* import() */[__webpack_require__.e(755), __webpack_require__.e(216), __webpack_require__.e(293)]).then(__webpack_require__.bind(__webpack_require__, 47293));
   await runHeadlessCli(process.argv.slice(2));
 }
 function bootstrapBundleRuntimeGlobals() {
@@ -135,13 +135,6 @@ module.exports = require("node:buffer");
 (module) {
 
 module.exports = require("node:crypto");
-
-/***/ },
-
-/***/ 76760
-(module) {
-
-module.exports = require("node:path");
 
 /***/ },
 

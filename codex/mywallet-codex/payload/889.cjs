@@ -33,7 +33,11 @@ var idb = __webpack_require__(78839);
 // EXTERNAL MODULE: ./src/api/storages/localStorage.ts
 var localStorage = __webpack_require__(44728);
 ;// ./src/api/storages/index.ts
-
+/* unused harmony import specifier */ var IS_EXTENSION;
+/* unused harmony import specifier */ var IS_CAPACITOR;
+/* unused harmony import specifier */ var storages_capacitorStorage;
+/* unused harmony import specifier */ var extensionStorage;
+/* unused harmony import specifier */ var storages_idb;
 
 
 
@@ -46,54 +50,92 @@ const storages = {
   [types/* StorageType */.e.ExtensionLocal]: extension/* default */.A,
   [types/* StorageType */.e.CapacitorStorage]: capacitorStorage/* default */.A
 };
-let currentStorage = resolveDefaultStorage();
-const storage = {
-  getItem(name, force) {
-    return currentStorage.getItem(name, force);
-  },
-  setItem(name, value) {
-    return currentStorage.setItem(name, value);
-  },
-  removeItem(name) {
-    return currentStorage.removeItem(name);
-  },
-  clear() {
-    return currentStorage.clear();
-  },
-  async getAll() {
-    if (currentStorage.getAll) {
-      return currentStorage.getAll();
-    }
-    return {};
-  },
-  async setMany(items) {
-    if (currentStorage.setMany) {
-      await currentStorage.setMany(items);
-      return;
-    }
-    await Promise.all(Object.entries(items).map(_ref => {
-      let [key, value] = _ref;
-      return storage.setItem(key, value);
-    }));
-  },
-  async getMany(keys) {
-    if (currentStorage.getMany) {
-      return currentStorage.getMany(keys);
-    }
-    const entries = await Promise.all(keys.map(async key => [key, await storage.getItem(key)]));
-    return Object.fromEntries(entries);
+let storageContext;
+// Browser single-runtime fallback stays opt-in via configureStorage(); runtime-owned work must use withStorage().
+let legacyStorage;
+const storage = createStorageFacade(() => getCurrentStorage());
+function createStorage(storageConfig) {
+  return storageConfig ? resolveStorage(storageConfig) : resolveDefaultStorage();
+}
+function getCurrentStorage() {
+  var _getStorageContext;
+  const runtimeStorage = (_getStorageContext = getStorageContext()) === null || _getStorageContext === void 0 ? void 0 : _getStorageContext.getStore();
+  if (runtimeStorage) {
+    return runtimeStorage;
   }
-};
+  if (isBrowserSingleRuntimeStorageAllowed() && legacyStorage) {
+    return legacyStorage;
+  }
+  throw new Error('Storage access requires an explicit runtime storage context');
+}
+function withStorage(storageInstance, fn) {
+  const context = getStorageContext();
+  return context ? context.run(storageInstance, fn) : fn();
+}
 function configureStorage(storageConfig) {
-  currentStorage = storageConfig ? resolveStorage(storageConfig) : resolveDefaultStorage();
-  return currentStorage;
+  const nextStorage = createStorage(storageConfig);
+  if (isBrowserSingleRuntimeStorageAllowed()) {
+    legacyStorage = nextStorage;
+  }
+  return nextStorage;
 }
 /* harmony default export */ const api_storages = ({
   ...storages,
   [types/* StorageType */.e.NodeFile]: createNodeFileStorage
 });
+function createStorageFacade(resolveStorageInstance) {
+  return {
+    getItem(name, force) {
+      return resolveStorageInstance().getItem(name, force);
+    },
+    setItem(name, value) {
+      return resolveStorageInstance().setItem(name, value);
+    },
+    async mutateItem(name, mutate) {
+      const storageInstance = resolveStorageInstance();
+      if (storageInstance.mutateItem) {
+        return storageInstance.mutateItem(name, mutate);
+      }
+      const nextValue = mutate(await storageInstance.getItem(name));
+      await storageInstance.setItem(name, nextValue);
+      return nextValue;
+    },
+    removeItem(name) {
+      return resolveStorageInstance().removeItem(name);
+    },
+    clear() {
+      return resolveStorageInstance().clear();
+    },
+    async getAll() {
+      const storageInstance = resolveStorageInstance();
+      if (storageInstance.getAll) {
+        return storageInstance.getAll();
+      }
+      return {};
+    },
+    async setMany(items) {
+      const storageInstance = resolveStorageInstance();
+      if (storageInstance.setMany) {
+        await storageInstance.setMany(items);
+        return;
+      }
+      await Promise.all(Object.entries(items).map(_ref => {
+        let [key, value] = _ref;
+        return storageInstance.setItem(key, value);
+      }));
+    },
+    async getMany(keys) {
+      const storageInstance = resolveStorageInstance();
+      if (storageInstance.getMany) {
+        return storageInstance.getMany(keys);
+      }
+      const entries = await Promise.all(keys.map(async key => [key, await storageInstance.getItem(key)]));
+      return Object.fromEntries(entries);
+    }
+  };
+}
 function resolveDefaultStorage() {
-  return config/* IS_EXTENSION */.hL1 ? extension/* default */.A : config/* IS_CAPACITOR */.UMQ ? capacitorStorage/* default */.A : idb/* default */.A;
+  return IS_EXTENSION ? extensionStorage : IS_CAPACITOR ? storages_capacitorStorage : storages_idb;
 }
 function resolveStorage(storageConfig) {
   if (storageConfig.type === 'nodeFile') {
@@ -116,13 +158,39 @@ function loadBundledNodeFileStorageModule() {
   if (!payloadDir) {
     return undefined;
   }
-  const modulePath = (0,external_node_path_.resolve)(payloadDir, 'nodeFile.cjs');
+  const modulePath = resolveBundledNodeFileModulePath(payloadDir);
   if (typeof ((_process$mainModule = process.mainModule) === null || _process$mainModule === void 0 ? void 0 : _process$mainModule.require) !== 'function') {
     return undefined;
   }
   return process.mainModule.require(modulePath);
 }
-function getRequire() {
+function resolveBundledNodeFileModulePath(payloadDir) {
+  return joinFilePath(payloadDir, 'nodeFile.cjs');
+}
+function getStorageContext() {
+  if (storageContext !== undefined) {
+    return storageContext ?? undefined;
+  }
+  const require = getOptionalRequire();
+  if (!require) {
+    storageContext = null;
+    return undefined;
+  }
+  try {
+    const {
+      AsyncLocalStorage
+    } = require('node:async_hooks');
+    storageContext = new AsyncLocalStorage();
+    return storageContext;
+  } catch (_err) {
+    storageContext = null;
+    return undefined;
+  }
+}
+function isBrowserSingleRuntimeStorageAllowed() {
+  return typeof window !== 'undefined' || typeof document !== 'undefined';
+}
+function getOptionalRequire() {
   try {
     var _globalThis$eval;
     const indirectRequire = (_globalThis$eval = globalThis.eval) === null || _globalThis$eval === void 0 ? void 0 : _globalThis$eval.call(globalThis, 'require');
@@ -140,6 +208,21 @@ function getRequire() {
   // removed by dead control flow
 
 }
+function getRequire() {
+  const require = getOptionalRequire();
+  if (require) {
+    return require;
+  }
+  throw new Error('Node-compatible require is unavailable for node-file storage');
+}
+function joinFilePath(directoryPath, fileName) {
+  if (!directoryPath) {
+    return fileName;
+  }
+  const separator = directoryPath.includes('\\') ? '\\' : '/';
+  const trimmedDirectoryPath = directoryPath.replace(/[\\/]+$/, '');
+  return `${trimmedDirectoryPath}${separator}${fileName}`;
+}
 ;// ./headless/runtime/autonomyMode.ts
 /* unused harmony import specifier */ var autonomyMode_storage;
 /* unused harmony import specifier */ var AUTONOMY_MODE_STORAGE_KEY;
@@ -153,7 +236,7 @@ async function restoreAutonomyMode() {
   return normalizeAutonomyMode(storedMode);
 }
 async function persistAutonomyMode(mode) {
-  await autonomyMode_storage.setItem(AUTONOMY_MODE_STORAGE_KEY, mode);
+  await autonomyMode_storage.mutateItem(AUTONOMY_MODE_STORAGE_KEY, () => mode);
 }
 function isHeadlessAutonomyMode(mode) {
   return HEADLESS_AUTONOMY_MODES.includes(mode);
@@ -1053,6 +1136,9 @@ function parseHeadlessCliCommand(value) {
 
 
 
+const {
+  version: SERVER_VERSION
+} = __webpack_require__(8330);
 const execFileAsync = (0,external_node_util_.promisify)(external_node_child_process_.execFile);
 const REPO_ROOT = (0,external_node_path_.resolve)(__dirname, '../../..');
 const DEFAULT_HEADLESS_BIN_PATH = (0,external_node_path_.resolve)(REPO_ROOT, 'bin/mywallet');
@@ -1060,7 +1146,6 @@ const HEADLESS_CLI_MAX_BUFFER_BYTES = 16 * 1024 * 1024;
 const JSON_RPC_VERSION = '2.0';
 const MCP_PROTOCOL_VERSION = '2024-11-05';
 const SERVER_NAME = 'mywallet-mcp';
-const SERVER_VERSION = '0.0.0';
 const CONTENT_TYPE_HEADER = 'Content-Type: application/json';
 const HEADER_SEPARATOR = '\r\n\r\n';
 const CONTENT_LENGTH_HEADER_PREFIX = 'content-length:';
@@ -1553,13 +1638,12 @@ let ApiTokenImportError = /*#__PURE__*/function (ApiTokenImportError) {
 (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   UMQ: () => (/* binding */ IS_CAPACITOR),
 /* harmony export */   gmk: () => (/* binding */ IS_AIR_APP),
 /* harmony export */   hL1: () => (/* binding */ IS_EXTENSION),
 /* harmony export */   rQT: () => (/* binding */ INDEXED_DB_STORE_NAME),
 /* harmony export */   vPi: () => (/* binding */ INDEXED_DB_NAME)
 /* harmony export */ });
-/* unused harmony exports APP_ENV, IS_CORE_WALLET, APP_NAME, APP_VERSION, APP_COMMIT_HASH, APP_ENV_MARKER, EXTENSION_NAME, EXTENSION_DESCRIPTION, DEBUG, DEBUG_MORE, DEBUG_API, DEBUG_VIEW_ACCOUNTS, TEST_MNEMONIC, TEST_PASSWORD, IS_PRODUCTION, IS_TEST, IS_PERF, IS_FIREFOX_EXTENSION, IS_OPERA_EXTENSION, IS_PACKAGED_ELECTRON, IS_ANDROID_DIRECT, IS_TELEGRAM_APP, IS_EXPLORER, ELECTRON_HOST_URL, INACTIVE_MARKER, PRODUCTION_URL, BETA_URL, APP_INSTALL_URL, APP_REPO_URL, SELF_UNIVERSAL_HOST_URL, BASE_URL, BOT_USERNAME, SWAP_FEE_ADDRESS, DIESEL_ADDRESS, STRICTERDOM_ENABLED, DEBUG_ALERT_MSG, PIN_LENGTH, NATIVE_BIOMETRICS_USERNAME, NATIVE_BIOMETRICS_SERVER, NATIVE_BIOMETRICS_PROMPT_KEY, IS_TON_MNEMONIC_ONLY, MNEMONIC_COUNT, MNEMONIC_COUNTS, PRIVATE_KEY_HEX_LENGTH, MNEMONIC_CHECK_COUNT, MOBILE_SCREEN_MAX_WIDTH, VIEW_TRANSITION_CLASS_NAME, ANIMATION_END_DELAY, ANIMATED_STICKER_TINY_ICON_PX, ANIMATED_STICKER_ICON_PX, ANIMATED_STICKER_TINY_SIZE_PX, ANIMATED_STICKER_SMALL_SIZE_PX, ANIMATED_STICKER_MIDDLE_SIZE_PX, ANIMATED_STICKER_DEFAULT_PX, ANIMATED_STICKER_BIG_SIZE_PX, ANIMATED_STICKER_HUGE_SIZE_PX, DEFAULT_PORTRAIT_WINDOW_SIZE, DEFAULT_LANDSCAPE_WINDOW_SIZE, DEFAULT_LANDSCAPE_ACTION_TAB_ID, TRANSACTION_ADDRESS_SHIFT, WHOLE_PART_DELIMITER, DEFAULT_SLIPPAGE_VALUE, GLOBAL_STATE_CACHE_DISABLED, GLOBAL_STATE_CACHE_KEY, ANIMATION_LEVEL_MIN, ANIMATION_LEVEL_MED, ANIMATION_LEVEL_MAX, ANIMATION_LEVEL_DEFAULT, THEME_DEFAULT, MAIN_ACCOUNT_ID, TEMPORARY_ACCOUNT_NAME, TONCENTER_MAINNET_URL, TONCENTER_MAINNET_KEY, ELECTRON_TONCENTER_MAINNET_KEY, TONAPIIO_MAINNET_URL, TONCENTER_TESTNET_URL, TONCENTER_TESTNET_KEY, ELECTRON_TONCENTER_TESTNET_KEY, TONAPIIO_TESTNET_URL, BRILLIANT_API_BASE_URL, PROXY_API_BASE_URL, IPFS_GATEWAY_BASE_URL, SSE_BRIDGE_URL, WALLET_CONNECT_BRIDGE_PATTERNS, WALLET_CONNECT_PROJECT_ID, TRON_MAINNET_API_URL, TRON_TESTNET_API_URL, SOLANA_MAINNET_RPC_URL, SOLANA_MAINNET_API_KEY, SOLANA_TESTNET_RPC_URL, SOLANA_TESTNET_API_KEY, SOLANA_TESTNET_API_URL, SOLANA_MAINNET_API_URL, SOLANA_GASLESS_PAYER_ADDRESS, FRACTION_DIGITS, SHORT_FRACTION_DIGITS, MAX_PUSH_NOTIFICATIONS_ACCOUNT_COUNT, SUPPORT_USERNAME, MTW_NEWS_CHANNEL_NAME, MTW_TIPS_CHANNEL_NAME, NFT_MARKETPLACE_TITLES, MTW_STATIC_BASE_URL, MTW_CARDS_BASE_URL, MTW_CARDS_MINT_BASE_URL, MYTONWALLET_PROMO_URL, MYTONWALLET_BLOG, MYTONWALLET_TERMS_OF_USE_URL, MYTONWALLET_PRIVACY_POLICY_URL, MULTISEND_DAPP_URL, PORTFOLIO_DAPP_URL, AGENT_API_URL, NFT_MARKETPLACE_URL, NFT_MARKETPLACE_TITLE, GETGEMS_BASE_MAINNET_URL, GETGEMS_BASE_TESTNET_URL, EMPTY_HASH_VALUE, IFRAME_WHITELIST, SUBPROJECT_URL_MASK, CHANGELLY_SUPPORT_EMAIL, CHANGELLY_LIVE_CHAT_URL, CHANGELLY_SECURITY_EMAIL, CHANGELLY_TERMS_OF_USE, CHANGELLY_PRIVACY_POLICY, CHANGELLY_AML_KYC, CHANGELLY_WAITING_DEADLINE, PROXY_HOSTS, TINY_TRANSFER_MAX_COST, IMAGE_CACHE_NAME, LANG_CACHE_NAME, LANG_LIST, IS_STAKING_DISABLED, VALIDATION_PERIOD_MS, ONE_TON, DEFAULT_FEE, UNSTAKE_TON_GRACE_PERIOD, STAKING_POOLS, LIQUID_POOL, LIQUID_JETTON, STAKING_MIN_AMOUNT, NOMINATORS_STAKING_MIN_AMOUNT, MIN_ACTIVE_STAKING_REWARDS, STAKING_SLUG_PREFIX, TONCONNECT_PROTOCOL_VERSION, TONCONNECT_WALLET_JSBRIDGE_KEY, EMBEDDED_DAPP_BRIDGE_CHANNEL, NFT_FRAGMENT_COLLECTIONS, NFT_FRAGMENT_GIFT_IMAGE_TO_URL_REGEX, TELEGRAM_GIFTS_SUPER_COLLECTION, MTW_CARDS_WEBSITE, MTW_CARDS_COLLECTION, TON_DNS_RENEWAL_WARNING_DAYS, TON_DNS_RENEWAL_NFT_WARNING_DAYS, TONCOIN, TRX, SOLANA, MYCOIN_MAINNET, MYCOIN_TESTNET, STAKED_TON_SLUG, STAKED_MYCOIN_SLUG, MYCOIN_STAKING_POOL, ETHENA_STAKING_VAULT, ETHENA_STAKING_MIN_AMOUNT, ETHENA_ELIGIBILITY_CHECK_URL, STON_PTON_ADDRESS, STON_PTON_SLUG, DNS_IMAGE_GEN_URL, TRC20_USDT_MAINNET, TRC20_USDT_TESTNET, TON_USDT_MAINNET, TON_USDT_TESTNET, TON_USDE, TON_TSUSDE, SOLANA_USDT_MAINNET, SOLANA_USDC_MAINNET, TOKEN_CUSTOM_STYLES, ALL_STAKING_POOLS, PRIORITY_TOKEN_SLUGS, INIT_SWAP_ASSETS, DEFAULT_SWAP_FIRST_TOKEN_SLUG, DEFAULT_SWAP_SECOND_TOKEN_SLUG, DEFAULT_SWAP_AMOUNT, DEFAULT_TRANSFER_TOKEN_SLUG, SWAP_DEX_LABELS, ACTIVE_TAB_STORAGE_KEY, WINDOW_PROVIDER_CHANNEL, WINDOW_PROVIDER_PORT, SHOULD_SHOW_ALL_ASSETS_AND_ACTIVITY, PORTRAIT_MIN_ASSETS_TAB_VIEW, LANDSCAPE_MIN_ASSETS_TAB_VIEW, DEFAULT_PRICE_CURRENCY, CURRENCIES, BURN_ADDRESS, DEFAULT_WALLET_VERSION, POPULAR_WALLET_VERSIONS, DEFAULT_TIMEOUT, DEFAULT_RETRIES, DEFAULT_ERROR_PAUSE, HISTORY_PERIODS, BROWSER_HISTORY_LIMIT, NFT_BATCH_SIZE, NOTCOIN_VOUCHERS_ADDRESS, BURN_CHUNK_DURATION_APPROX_SEC, NOTCOIN_FORWARD_TON_AMOUNT, NOTCOIN_EXCHANGERS, CLAIM_ADDRESS, CLAIM_AMOUNT, CLAIM_COMMENT, MINT_CARD_ADDRESS, MINT_CARD_COMMENT, MINT_CARD_REFUND_COMMENT, RE_LINK_TEMPLATE, RE_TG_BOT_MENTION, STARS_SYMBOL, GIVEAWAY_CHECKIN_URL, AUTOLOCK_OPTIONS_LIST, AUTO_CONFIRM_DURATION_MINUTES, PRICELESS_TOKEN_HASHES, STAKED_TOKEN_SLUGS, DEFAULT_OUR_SWAP_FEE, MTW_AGGREGATOR_QUERY_ID, DEFAULT_STAKING_STATE, DEFAULT_NOMINATORS_STAKING_STATE, SWAP_API_VERSION, TONCENTER_ACTIONS_VERSION, JVAULT_URL, HELP_CENTER_URL, TON_DNS_ZONES, RENEWABLE_TON_DNS_COLLECTIONS, DEFAULT_AUTOLOCK_OPTION, WRONG_ATTEMPTS_BEFORE_LOG_OUT_SUGGESTION, UNKNOWN_TOKEN, DEFAULT_CHAIN */
+/* unused harmony exports APP_ENV, IS_CORE_WALLET, APP_NAME, APP_VERSION, APP_COMMIT_HASH, APP_ENV_MARKER, EXTENSION_NAME, EXTENSION_DESCRIPTION, DEBUG, DEBUG_MORE, DEBUG_API, DEBUG_VIEW_ACCOUNTS, TEST_MNEMONIC, TEST_PASSWORD, IS_PRODUCTION, IS_TEST, IS_PERF, IS_FIREFOX_EXTENSION, IS_OPERA_EXTENSION, IS_PACKAGED_ELECTRON, IS_ANDROID, IS_CAPACITOR, IS_ANDROID_DIRECT, IS_TELEGRAM_APP, IS_EXPLORER, ELECTRON_HOST_URL, INACTIVE_MARKER, PRODUCTION_URL, BETA_URL, APP_INSTALL_URL, APP_REPO_URL, SELF_UNIVERSAL_HOST_URL, BASE_URL, BOT_USERNAME, SWAP_FEE_ADDRESS, DIESEL_ADDRESS, STRICTERDOM_ENABLED, DEBUG_ALERT_MSG, PIN_LENGTH, NATIVE_BIOMETRICS_USERNAME, NATIVE_BIOMETRICS_SERVER, NATIVE_BIOMETRICS_PROMPT_KEY, IS_TON_MNEMONIC_ONLY, MNEMONIC_COUNT, MNEMONIC_COUNTS, PRIVATE_KEY_HEX_LENGTH, MNEMONIC_CHECK_COUNT, MOBILE_SCREEN_MAX_WIDTH, VIEW_TRANSITION_CLASS_NAME, ANIMATION_END_DELAY, ANIMATED_STICKER_TINY_ICON_PX, ANIMATED_STICKER_ICON_PX, ANIMATED_STICKER_TINY_SIZE_PX, ANIMATED_STICKER_SMALL_SIZE_PX, ANIMATED_STICKER_MIDDLE_SIZE_PX, ANIMATED_STICKER_DEFAULT_PX, ANIMATED_STICKER_BIG_SIZE_PX, ANIMATED_STICKER_HUGE_SIZE_PX, DEFAULT_PORTRAIT_WINDOW_SIZE, DEFAULT_LANDSCAPE_WINDOW_SIZE, DEFAULT_LANDSCAPE_ACTION_TAB_ID, TRANSACTION_ADDRESS_SHIFT, WHOLE_PART_DELIMITER, DEFAULT_SLIPPAGE_VALUE, GLOBAL_STATE_CACHE_DISABLED, GLOBAL_STATE_CACHE_KEY, ANIMATION_LEVEL_MIN, ANIMATION_LEVEL_MED, ANIMATION_LEVEL_MAX, ANIMATION_LEVEL_DEFAULT, THEME_DEFAULT, MAIN_ACCOUNT_ID, TEMPORARY_ACCOUNT_NAME, TONCENTER_MAINNET_URL, TONCENTER_MAINNET_KEY, ELECTRON_TONCENTER_MAINNET_KEY, TONAPIIO_MAINNET_URL, TONCENTER_TESTNET_URL, TONCENTER_TESTNET_KEY, ELECTRON_TONCENTER_TESTNET_KEY, TONAPIIO_TESTNET_URL, BRILLIANT_API_BASE_URL, PROXY_API_BASE_URL, IPFS_GATEWAY_BASE_URL, SSE_BRIDGE_URL, WALLET_CONNECT_BRIDGE_PATTERNS, WALLET_CONNECT_PROJECT_ID, TRON_MAINNET_API_URL, TRON_TESTNET_API_URL, SOLANA_MAINNET_RPC_URL, SOLANA_MAINNET_API_KEY, SOLANA_TESTNET_RPC_URL, SOLANA_TESTNET_API_KEY, SOLANA_TESTNET_API_URL, SOLANA_MAINNET_API_URL, SOLANA_GASLESS_PAYER_ADDRESS, FRACTION_DIGITS, SHORT_FRACTION_DIGITS, MAX_PUSH_NOTIFICATIONS_ACCOUNT_COUNT, SUPPORT_USERNAME, MTW_NEWS_CHANNEL_NAME, MTW_TIPS_CHANNEL_NAME, NFT_MARKETPLACE_TITLES, MTW_STATIC_BASE_URL, MTW_CARDS_BASE_URL, MTW_CARDS_MINT_BASE_URL, MYTONWALLET_PROMO_URL, MYTONWALLET_BLOG, MYTONWALLET_TERMS_OF_USE_URL, MYTONWALLET_PRIVACY_POLICY_URL, MULTISEND_DAPP_URL, PORTFOLIO_DAPP_URL, AGENT_API_URL, NFT_MARKETPLACE_URL, NFT_MARKETPLACE_TITLE, GETGEMS_BASE_MAINNET_URL, GETGEMS_BASE_TESTNET_URL, EMPTY_HASH_VALUE, IFRAME_WHITELIST, SUBPROJECT_URL_MASK, CHANGELLY_SUPPORT_EMAIL, CHANGELLY_LIVE_CHAT_URL, CHANGELLY_SECURITY_EMAIL, CHANGELLY_TERMS_OF_USE, CHANGELLY_PRIVACY_POLICY, CHANGELLY_AML_KYC, CHANGELLY_WAITING_DEADLINE, PROXY_HOSTS, TINY_TRANSFER_MAX_COST, IMAGE_CACHE_NAME, LANG_CACHE_NAME, LANG_LIST, IS_STAKING_DISABLED, VALIDATION_PERIOD_MS, ONE_TON, DEFAULT_FEE, UNSTAKE_TON_GRACE_PERIOD, STAKING_POOLS, LIQUID_POOL, LIQUID_JETTON, STAKING_MIN_AMOUNT, NOMINATORS_STAKING_MIN_AMOUNT, MIN_ACTIVE_STAKING_REWARDS, STAKING_SLUG_PREFIX, TONCONNECT_PROTOCOL_VERSION, TONCONNECT_WALLET_JSBRIDGE_KEY, EMBEDDED_DAPP_BRIDGE_CHANNEL, NFT_FRAGMENT_COLLECTIONS, NFT_FRAGMENT_GIFT_IMAGE_TO_URL_REGEX, TELEGRAM_GIFTS_SUPER_COLLECTION, MTW_CARDS_WEBSITE, MTW_CARDS_COLLECTION, TON_DNS_RENEWAL_WARNING_DAYS, TON_DNS_RENEWAL_NFT_WARNING_DAYS, TONCOIN, TRX, SOLANA, MYCOIN_MAINNET, MYCOIN_TESTNET, STAKED_TON_SLUG, STAKED_MYCOIN_SLUG, MYCOIN_STAKING_POOL, ETHENA_STAKING_VAULT, ETHENA_STAKING_MIN_AMOUNT, ETHENA_ELIGIBILITY_CHECK_URL, STON_PTON_ADDRESS, STON_PTON_SLUG, DNS_IMAGE_GEN_URL, TRC20_USDT_MAINNET, TRC20_USDT_TESTNET, TON_USDT_MAINNET, TON_USDT_TESTNET, TON_USDE, TON_TSUSDE, SOLANA_USDT_MAINNET, SOLANA_USDC_MAINNET, TOKEN_CUSTOM_STYLES, ALL_STAKING_POOLS, PRIORITY_TOKEN_SLUGS, INIT_SWAP_ASSETS, DEFAULT_SWAP_FIRST_TOKEN_SLUG, DEFAULT_SWAP_SECOND_TOKEN_SLUG, DEFAULT_SWAP_AMOUNT, DEFAULT_TRANSFER_TOKEN_SLUG, SWAP_DEX_LABELS, ACTIVE_TAB_STORAGE_KEY, WINDOW_PROVIDER_CHANNEL, WINDOW_PROVIDER_PORT, SHOULD_SHOW_ALL_ASSETS_AND_ACTIVITY, PORTRAIT_MIN_ASSETS_TAB_VIEW, LANDSCAPE_MIN_ASSETS_TAB_VIEW, DEFAULT_PRICE_CURRENCY, CURRENCIES, BURN_ADDRESS, DEFAULT_WALLET_VERSION, POPULAR_WALLET_VERSIONS, DEFAULT_TIMEOUT, DEFAULT_RETRIES, DEFAULT_ERROR_PAUSE, HISTORY_PERIODS, BROWSER_HISTORY_LIMIT, NFT_BATCH_SIZE, NOTCOIN_VOUCHERS_ADDRESS, BURN_CHUNK_DURATION_APPROX_SEC, NOTCOIN_FORWARD_TON_AMOUNT, NOTCOIN_EXCHANGERS, CLAIM_ADDRESS, CLAIM_AMOUNT, CLAIM_COMMENT, MINT_CARD_ADDRESS, MINT_CARD_COMMENT, MINT_CARD_REFUND_COMMENT, RE_LINK_TEMPLATE, RE_TG_BOT_MENTION, STARS_SYMBOL, GIVEAWAY_CHECKIN_URL, AUTOLOCK_OPTIONS_LIST, AUTO_CONFIRM_DURATION_MINUTES, PRICELESS_TOKEN_HASHES, STAKED_TOKEN_SLUGS, DEFAULT_OUR_SWAP_FEE, MTW_AGGREGATOR_QUERY_ID, DEFAULT_STAKING_STATE, DEFAULT_NOMINATORS_STAKING_STATE, SWAP_API_VERSION, TONCENTER_ACTIONS_VERSION, JVAULT_URL, HELP_CENTER_URL, TON_DNS_ZONES, RENEWABLE_TON_DNS_COLLECTIONS, DEFAULT_AUTOLOCK_OPTION, WRONG_ATTEMPTS_BEFORE_LOG_OUT_SUGGESTION, UNKNOWN_TOKEN, DEFAULT_CHAIN */
 var _process$env$TEST_MNE;
 /* eslint-disable @stylistic/max-len */
 
@@ -1584,6 +1668,7 @@ const IS_EXTENSION = process.env.IS_EXTENSION === '1';
 const IS_FIREFOX_EXTENSION = process.env.IS_FIREFOX_EXTENSION === '1';
 const IS_OPERA_EXTENSION = process.env.IS_OPERA_EXTENSION === '1';
 const IS_PACKAGED_ELECTRON = process.env.IS_PACKAGED_ELECTRON === '1';
+const IS_ANDROID = process.env.PLATFORM_ENV === 'Android';
 const IS_CAPACITOR = process.env.IS_CAPACITOR === '1';
 const IS_ANDROID_DIRECT = process.env.IS_ANDROID_DIRECT === '1';
 const IS_AIR_APP = process.env.IS_AIR_APP === '1';
@@ -1719,7 +1804,7 @@ const CHANGELLY_WAITING_DEADLINE = (/* unused pure expression or super */ null &
 const PROXY_HOSTS = process.env.PROXY_HOSTS;
 const TINY_TRANSFER_MAX_COST = 0.01;
 const IMAGE_CACHE_NAME = (/* unused pure expression or super */ null && (IS_EXPLORER ? 'explorer-image' : 'mtw-image'));
-const LANG_CACHE_NAME = 'mtw-lang-283';
+const LANG_CACHE_NAME = 'mtw-lang-285';
 const LANG_LIST = [{
   langCode: 'en',
   name: 'English',
@@ -2564,6 +2649,8 @@ function orderByPattern(arr, getValue, pattern) {
 
 /* unused harmony exports errorReplacer, addLog, getLogs, logDebugError, logDebug, logDebugApi, logSelfXssWarnings */
 /* unused harmony import specifier */ var DEBUG;
+/* unused harmony import specifier */ var IS_AIR_APP;
+/* unused harmony import specifier */ var IS_ANDROID;
 /* unused harmony import specifier */ var DEBUG_API;
 /* unused harmony import specifier */ var AssertionError;
 /* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28732);
@@ -2608,6 +2695,10 @@ function logDebugError(message) {
   if (DEBUG) {
     // eslint-disable-next-line no-console
     console.error(`[DEBUG][${message}]`, ...args);
+  }
+  if (IS_AIR_APP && IS_ANDROID) {
+    var _androidApp;
+    (_androidApp = window.androidApp) === null || _androidApp === void 0 || _androidApp.logDebugError(message, JSON.stringify(args, errorReplacer));
   }
 }
 function logDebug(message) {
@@ -3208,6 +3299,13 @@ function entries(customStore = defaultGetStore()) {
 
 
 
+
+/***/ },
+
+/***/ 8330
+(module) {
+
+module.exports = /*#__PURE__*/JSON.parse('{"name":"mywallet","version":"4.8.3","description":"The most feature-rich web wallet and browser extension for TON – with support of multi-accounts, tokens (jettons), NFT, TON DNS, TON Sites, TON Proxy, and TON Magic.","main":"index.js","bin":{"mywallet":"./bin/mywallet","mywallet-mcp":"./bin/mywallet-mcp"},"scripts":{"dev":"cross-env APP_ENV=development webpack serve --mode development","build":"webpack && bash ./deploy/copy_to_dist.sh","build:dev":"APP_ENV=development webpack --mode development && bash ./deploy/copy_to_dist.sh","build:staging":"cross-env APP_ENV=staging npm run build","build:production":"npm run build","core:dev":"cross-env IS_CORE_WALLET=1 npm run dev","core:build":"cross-env IS_CORE_WALLET=1 npm run build","core:build:dev":"cross-env IS_CORE_WALLET=1 npm run build:dev","core:build:staging":"cross-env IS_CORE_WALLET=1 npm run build:staging","core:build:production":"cross-env IS_CORE_WALLET=1 npm run build:production","core:extension:dev":"cross-env IS_CORE_WALLET=1 npm run extension:dev","core:extension-chrome:package":"cross-env IS_CORE_WALLET=1 npm run extension-chrome:package","core:extension-chrome:package:staging":"cross-env IS_CORE_WALLET=1 npm run extension-chrome:package:staging","core:extension-chrome:package:production":"cross-env IS_CORE_WALLET=1 npm run extension-chrome:package:production","extension:dev":"cross-env IS_EXTENSION=1 npm run build:dev","extension-chrome:package":"cross-env IS_EXTENSION=1 webpack && bash ./deploy/package_extension.sh chrome","extension-chrome:package:staging":"APP_ENV=staging npm run extension-chrome:package","extension-chrome:package:production":"npm run extension-chrome:package","extension-firefox:package":"cross-env IS_FIREFOX_EXTENSION=1 IS_EXTENSION=1 webpack && bash ./deploy/package_extension.sh firefox","extension-firefox:package:staging":"cross-env APP_ENV=staging npm run extension-firefox:package","extension-firefox:package:production":"npm run extension-firefox:package","extension-opera:package":"cross-env IS_OPERA_EXTENSION=1 IS_EXTENSION=1 webpack && bash ./deploy/package_extension.sh opera","extension-opera:package:staging":"cross-env APP_ENV=staging npm run extension-opera:package","extension-opera:package:production":"npm run extension-opera:package","electron:dev":"ENV=development npm run electron:webpack && IS_PACKAGED_ELECTRON=1 ENV=development concurrently --ks SIGKILL -n main,renderer,electron \\"npm run electron:webpack -- --watch\\" \\"npm run dev\\" \\"electronmon dist/electron\\"","electron:webpack":"cross-env APP_ENV=$ENV webpack --config ./webpack-electron.config.ts","electron:build":"IS_PACKAGED_ELECTRON=1 npm run build:$ENV && electron-builder install-app-deps && ENV=$ENV npm run electron:webpack","electron:package":"npm run electron:build && npx rimraf dist-electron && electron-builder build --win --mac --linux --config src/electron/config.yml","electron:package:staging":"ENV=staging npm run electron:package -- -p never","electron:release:production":"ENV=production npm run electron:package -- -p always","headless":"./bin/mywallet","telegram:dev":"cross-env IS_TELEGRAM_APP=1 npm run dev","telegram:build":"IS_TELEGRAM_APP=1 npm run build","telegram:build:dev":"cross-env APP_ENV=development npm run telegram:build","telegram:build:staging":"cross-env APP_ENV=staging npm run telegram:build","telegram:build:production":"npm run telegram:build","explorer:dev":"cross-env IS_EXPLORER=1 npm run dev","explorer:build":"cross-env IS_EXPLORER=1 npm run build","explorer:build:dev":"cross-env IS_EXPLORER=1 npm run build:dev","explorer:build:staging":"cross-env IS_EXPLORER=1 npm run build:staging","explorer:build:production":"cross-env IS_EXPLORER=1 npm run build:production","mobile:build:sdk":"bash ./deploy/build_sdk.sh","mobile:build":"npm run i18n:build:android && npm run mobile:build:sdk && cross-env IS_CAPACITOR=1 npm run build && cap sync ${CAP_PLATFORM} --deployment","mobile:build:dev":"cross-env APP_ENV=development npm run mobile:build","mobile:build:staging":"cross-env APP_ENV=staging npm run mobile:build","mobile:build:production":"npm run mobile:build","mobile:run:android":"npm run mobile:build:dev && cap run android","mobile:run:ios":"npm run mobile:build:dev && cap run ios","build:icons":"fantasticon","check":"tsc && stylelint \\"**/*.{css,scss}\\" && eslint .","check:fix":"stylelint \\"**/*.{css,scss}\\" --fix && eslint . --fix","test":"cross-env APP_ENV=test jest --verbose --forceExit","test:headless:bin":"cross-env APP_ENV=test jest --verbose --forceExit --runInBand --runTestsByPath headless/adapters/cli/package-bin.integration.test.ts","build:headless:claude:bundle":"cross-env APP_ENV=test node headless/platforms/claude/bundle/build.js","build:headless:claude-code":"cross-env APP_ENV=test node headless/platforms/claude-code/build.js","build:headless:claude-code:release":"cross-env APP_ENV=test node headless/platforms/claude-code/prepare-release.js","build:headless:codex":"cross-env APP_ENV=test node headless/platforms/codex/build.js","build:headless:codex:release":"cross-env APP_ENV=test node headless/platforms/codex/prepare-release.js","build:headless:cursor":"cross-env APP_ENV=test node headless/platforms/cursor/build.js","build:headless:cursor:release":"cross-env APP_ENV=test node headless/platforms/cursor/prepare-release.js","build:headless:openclaw:bundle":"cross-env APP_ENV=test node headless/platforms/openclaw/bundle/build.js","headless:publish-plugins":"cross-env APP_ENV=test node headless/platforms/publish-plugins.js","test:headless:platforms":"cross-env APP_ENV=test jest --verbose --forceExit --runInBand --runTestsByPath headless/platforms/index.test.ts headless/platforms/shared-plugin/index.test.ts headless/platforms/cursor/index.test.ts headless/platforms/claude-code/index.test.ts headless/platforms/codex/index.test.ts headless/platforms/publish-plugins.test.ts","test:headless:claude:bundle":"cross-env APP_ENV=test jest --verbose --forceExit --runInBand --runTestsByPath headless/platforms/claude/bundle/index.test.ts","test:headless:claude-code":"cross-env APP_ENV=test jest --verbose --forceExit --runInBand --runTestsByPath headless/platforms/claude-code/index.test.ts","test:headless:codex":"cross-env APP_ENV=test jest --verbose --forceExit --runInBand --runTestsByPath headless/platforms/codex/index.test.ts","test:headless:cursor":"cross-env APP_ENV=test jest --verbose --forceExit --runInBand --runTestsByPath headless/platforms/cursor/index.test.ts","test:headless:openclaw:bundle":"cross-env APP_ENV=test jest --verbose --forceExit --runInBand --runTestsByPath headless/platforms/openclaw/bundle/index.test.ts","test:headless:claude:isolation":"cross-env APP_ENV=test node headless/platforms/claude/bundle/run-isolated-claude-harness.js --mode docker --strict","test:headless:claude-code:isolation":"cross-env APP_ENV=test node headless/platforms/claude-code/run-isolated-claude-code-harness.js --strict","test:headless:codex:isolation":"cross-env APP_ENV=test node headless/platforms/codex/run-isolated-codex-harness.js --strict","test:headless:cursor:isolation":"cross-env APP_ENV=test node headless/platforms/cursor/run-isolated-cursor-harness.js --strict","test:headless:openclaw:isolation":"cross-env APP_ENV=test node headless/platforms/openclaw/bundle/run-isolated-openclaw-harness.js --mode docker --bundle-source archive --strict","test:headless:openclaw:isolation:dev":"cross-env APP_ENV=test node headless/platforms/openclaw/bundle/run-isolated-openclaw-harness.js --mode temp-home --bundle-source archive","test:headless:claude:smoke":"cross-env APP_ENV=test HEADLESS_CLAUDE_SMOKE=1 jest --verbose --forceExit --runInBand --runTestsByPath headless/platforms/claude/bundle/index.smoke.test.ts","test:headless:claude-code:smoke":"cross-env APP_ENV=test HEADLESS_CLAUDE_CODE_SMOKE=1 jest --verbose --forceExit --runInBand --runTestsByPath headless/platforms/claude-code/index.smoke.test.ts","test:headless:codex:smoke":"cross-env APP_ENV=test HEADLESS_CODEX_SMOKE=1 jest --verbose --forceExit --runInBand --runTestsByPath headless/platforms/codex/index.smoke.test.ts","test:headless:cursor:smoke":"cross-env APP_ENV=test HEADLESS_CURSOR_SMOKE=1 jest --verbose --forceExit --runInBand --runTestsByPath headless/platforms/cursor/index.smoke.test.ts","test:headless:openclaw:smoke":"cross-env APP_ENV=test HEADLESS_OPENCLAW_SMOKE=1 jest --verbose --forceExit --runInBand --runTestsByPath headless/platforms/openclaw/bundle/index.smoke.test.ts","test:headless:smoke":"cross-env APP_ENV=test jest --verbose --forceExit --runInBand --runTestsByPath headless/adapters/cli/index.real-wallet.integration.test.ts","test:playwright":"playwright test","test:record":"playwright codegen localhost:1235","prepare":"husky","statoscope:build":"cross-env IS_STATOSCOPE=1 webpack","analyze:bundle":"node dev/analyzeBundleSize.mjs","statoscope:validate-diff":"statoscope validate --input input.json --reference reference.json","postversion":"./deploy/postversion.sh","giveaways:build":"webpack --config ./webpack-giveaways.config.ts && bash ./deploy/copy_to_dist.sh dist-giveaways","giveaways:build:dev":"APP_ENV=development webpack --mode development --config ./webpack-giveaways.config.ts","giveaways:dev":"APP_ENV=development webpack serve --mode development --config ./webpack-giveaways.config.ts","multisend:build":"webpack --config webpack-multisend.config.ts && bash ./deploy/copy_to_dist.sh dist-multisend src/multisend/public","multisend:build:dev":"APP_ENV=development webpack --mode development --config webpack-multisend.config.ts","multisend:dev":"APP_ENV=development webpack serve --mode development --config webpack-multisend.config.ts","portfolio:build":"webpack --config webpack-portfolio.config.ts && bash ./deploy/copy_to_dist.sh dist-portfolio src/portfolio/public","portfolio:build:dev":"APP_ENV=development webpack --mode development --config webpack-portfolio.config.ts","portfolio:dev":"APP_ENV=development webpack serve --mode development --config webpack-portfolio.config.ts","push:build":"IS_TELEGRAM_APP=1 webpack --config webpack-push.config.ts && bash ./deploy/copy_to_dist.sh dist-push src/push/public","push:build:dev":"APP_ENV=development IS_TELEGRAM_APP=1 webpack --mode development --config webpack-push.config.ts","push:dev":"APP_ENV=development IS_TELEGRAM_APP=1 webpack serve --mode development --config webpack-push.config.ts","resolve-stacktrace":"node ./dev/resolveStackTrace.mjs","i18n:build:default":"node ./dev/locales/buildDefault.js","i18n:build:android":"node ./dev/locales/buildAndroidResources.js","i18n:update":"node ./dev/locales/updateLocales.js","i18n:find-missing":"node ./dev/locales/findMissingKeys.js"},"engines":{"node":"^22.6 || ^24","npm":"^10.8 || ^11"},"husky":{"hooks":{"pre-commit":"tsc && lint-staged"}},"lint-staged":{"*.{ts,tsx,js}":"eslint --fix","*.{css,scss}":"stylelint --fix"},"author":"My Wallet","license":"GPL-3.0-or-later","protocols":[{"name":"Ton","schemes":["ton"]},{"name":"TonConnect","schemes":["tc","mytonwallet-tc"]},{"name":"My Wallet","schemes":["mtw"]}],"devDependencies":{"@babel/core":"7.27.1","@babel/preset-env":"7.27.2","@babel/preset-react":"7.27.1","@babel/preset-typescript":"7.27.1","@babel/register":"7.27.1","@capacitor/cli":"8.1.0","@mytonwallet/eslint-config":"github:mytonwallet-org/eslint-config#03e3491cf5ffd909041c53fa91bebd69a36ca3a8","@mytonwallet/stylelint-whole-pixel":"github:mytonwallet-org/stylelint-whole-pixel#fd07e44d786460f7d469076b1d2cb1b05297896c","@mytonwallet/webpack-watch-file-plugin":"github:mytonwallet-org/webpack-watch-file-plugin#747b7fd29da9a928aa8b63299adfba461d2f1231","@playwright/test":"1.57.0","@statoscope/cli":"5.29.0","@statoscope/webpack-plugin":"5.29.0","@stylistic/stylelint-plugin":"3.1.2","@tonconnect/protocol":"2.3.0-beta.0","@twa-dev/types":"8.0.2","@twbs/fantasticon":"3.1.0","@types/chrome":"0.0.323","@types/create-hmac":"1.1.3","@types/jest":"30.0.0","@types/js-yaml":"4.0.9","@types/node":"22.15.21","@types/react":"19.1.5","@types/react-dom":"19.1.5","@types/sha256":"0.2.2","@types/snarkjs":"^0.7.9","@types/uuid":"10.0.0","@types/webextension-polyfill":"0.12.3","@types/webpack":"5.28.5","@types/webpack-bundle-analyzer":"4.7.0","@vue/preload-webpack-plugin":"2.0.0","@webpack-cli/serve":"3.0.1","autoprefixer":"10.4.21","babel-loader":"10.0.0","babel-plugin-transform-import-meta":"2.3.2","browserlist":"1.0.1","concurrently":"9.1.2","copy-webpack-plugin":"13.0.0","cross-env":"7.0.3","css-loader":"7.1.2","css-minimizer-webpack-plugin":"7.0.2","dotenv":"16.5.0","electron":"39.2.7","electron-builder":"26.8.1","electron-context-menu":"4.1.1","electron-updater":"6.6.2","electron-window-state":"5.0.3","electronmon":"2.0.4","eslint":"9.39.2","git-revision-webpack-plugin":"5.0.0","html-webpack-plugin":"5.6.3","husky":"9.1.7","jest":"30.2.0","jest-environment-jsdom":"30.2.0","jest-raw-loader":"1.0.1","js-yaml":"4.1.1","lint-staged":"16.0.0","mini-css-extract-plugin":"2.9.2","postcss":"8.5.3","postcss-loader":"8.1.1","postcss-modules":"6.0.1","process":"0.11.10","replace-in-file":"8.4.0","sass":"1.89.0","sass-loader":"16.0.5","script-loader":"0.7.2","serve":"14.2.5","source-map":"0.7.4","stylelint":"16.19.1","stylelint-config-clean-order":"7.0.0","stylelint-config-recommended-scss":"15.0.1","stylelint-declaration-block-no-ignored-properties":"2.8.0","stylelint-group-selectors":"1.0.10","stylelint-high-performance-animation":"1.11.0","stylelint-order":"7.0.0","typescript":"5.8.3","typescript-eslint":"8.56.0","webpack":"5.105.2","webpack-dev-server":"5.2.3"},"dependencies":{"@awesome-cordova-plugins/core":"6.16.0","@awesome-cordova-plugins/in-app-browser":"6.16.0","@capacitor-community/bluetooth-le":"github:mytonwallet-org/capacitor-bluetooth-le#f36f0b7673b2652ff48848d36e531748aa4c61a5","@capacitor-mlkit/barcode-scanning":"8.0.1","@capacitor/android":"https://github.com/mytonwallet-org/capacitor/raw/d3a43ea8fb48f388e399d93b44bdf95478777a8b/android/dist.tgz","@capacitor/app":"8.0.1","@capacitor/app-launcher":"8.0.1","@capacitor/clipboard":"8.0.1","@capacitor/core":"8.2.0","@capacitor/dialog":"file:mobile/plugins/native-dialog","@capacitor/filesystem":"8.1.2","@capacitor/haptics":"8.0.1","@capacitor/ios":"8.2.0","@capacitor/keyboard":"8.0.1","@capacitor/push-notifications":"8.0.2","@capacitor/share":"8.0.1","@capacitor/splash-screen":"https://github.com/mytonwallet-org/capacitor-plugins/raw/3bbb910b0baa6efedab2eccf2fd078ec98d723c7/splash-screen/dist.tgz","@capacitor/status-bar":"https://github.com/mytonwallet-org/capacitor-plugins/raw/3bbb910b0baa6efedab2eccf2fd078ec98d723c7/status-bar/dist.tgz","@capgo/capacitor-native-biometric":"github:mytonwallet-org/capacitor-native-biometric#536963beb47306fdf63aeac97d21ebbc6acaeae4","@capgo/native-audio":"8.3.1","@ledgerhq/hw-transport-webhid":"6.30.0","@ledgerhq/hw-transport-webusb":"6.29.4","@mauricewegner/capacitor-navigation-bar":"github:mytonwallet-org/capacitor-navigation-bar#0c4908be7c880eb2894055a5af6fcb8bf264d6e1","@mytonwallet/air-app-launcher":"file:mobile/plugins/air-app-launcher","@mytonwallet/capacitor-usb-hid":"github:mytonwallet-org/capacitor-usb-hid#28d10b296777280f7cb0735cc3fd02a4f03568ab","@reown/walletkit":"1.5.0","@solana/kit":"5.1.0","@ton-community/ton-ledger":"7.4.0-pre.0","@ton/core":"0.60.1","@ton/ton":"15.2.1","@tonconnect/sdk":"^3.4.1","@tonconnect/ui":"^2.2.0","bip39":"3.1.0","buffer":"6.0.3","capacitor-native-settings":"8.0.0","capacitor-plugin-safe-area":"4.0.2","capacitor-secure-storage-plugin":"github:mytonwallet-org/capacitor-secure-storage-plugin#d0304dddaacaaa49e342ff6c4d7fbfedff2b1503","cordova-plugin-inappbrowser":"github:mytonwallet-org/cordova-plugin-inappbrowser#360b79fda72c125d9af0c46d8a7fbe7e21ef5005","create-hmac":"1.1.7","dexie":"4.0.11","electron-conf":"1.3.0","ffjavascript":"^0.3.1","fflate":"0.8.2","idb-keyval":"6.2.2","poseidon-bls12381":"^1.0.2","qr-code-styling":"github:mytonwallet-org/qr-code-styling#671f29cc908681b5f5c7979fd418ff1fdf30ca9f","qrcode-generator":"1.4.4","snarkjs":"0.7.6","stream-browserify":"3.0.0","tonapi-sdk-js":"^2.0.23","tonweb-mnemonic":"1.0.1","tronweb":"6.0.0","tweetnacl":"1.0.3","webextension-polyfill":"0.12.0"},"overrides":{"bfj":"7.0.2"}}');
 
 /***/ }
 

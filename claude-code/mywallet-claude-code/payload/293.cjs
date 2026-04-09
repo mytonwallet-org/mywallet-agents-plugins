@@ -1,8 +1,8 @@
-exports.id = 502;
-exports.ids = [502];
+exports.id = 293;
+exports.ids = [293];
 exports.modules = {
 
-/***/ 70502
+/***/ 47293
 (module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -50,6 +50,7 @@ var api_methods_namespaceObject = {};
 __webpack_require__.r(api_methods_namespaceObject);
 __webpack_require__.d(api_methods_namespaceObject, {
   activateAccount: () => (activateAccount),
+  addSubWallet: () => (addSubWallet),
   buildTokenSlug: () => (buildTokenSlug),
   cancelDappRequest: () => (cancelDappRequest),
   changePassword: () => (changePassword),
@@ -68,6 +69,7 @@ __webpack_require__.d(api_methods_namespaceObject, {
   confirmDappRequestSignData: () => (confirmDappRequestSignData),
   createLocalActivitiesFromEmulation: () => (createLocalActivitiesFromEmulation),
   createLocalTransactions: () => (createLocalTransactions),
+  createSubWallet: () => (createSubWallet),
   deactivateAllAccounts: () => (deactivateAllAccounts),
   decryptComment: () => (activities_decryptComment),
   deleteAllDapps: () => (deleteAllDapps),
@@ -100,6 +102,7 @@ __webpack_require__.d(api_methods_namespaceObject, {
   getMoonpayOfframpUrl: () => (getMoonpayOfframpUrl),
   getMoonpayOnrampUrl: () => (getMoonpayOnrampUrl),
   getStakingHistory: () => (getStakingHistory),
+  getWalletVariants: () => (methods_auth_getWalletVariants),
   importLedgerAccount: () => (importLedgerAccount),
   importMnemonic: () => (importMnemonic),
   importNewWalletVersion: () => (importNewWalletVersion),
@@ -116,6 +119,7 @@ __webpack_require__.d(api_methods_namespaceObject, {
   initTokens: () => (initTokens),
   initTransfer: () => (initTransfer),
   initWallet: () => (initWallet),
+  loadAccountsDerivations: () => (loadAccountsDerivations),
   loadExploreSites: () => (loadExploreSites),
   ping: () => (ping),
   removeAccount: () => (removeAccount),
@@ -222,8 +226,6 @@ function buildSensitiveActionError(message, details) {
   error.details = details;
   return error;
 }
-// EXTERNAL MODULE: external "node:path"
-var external_node_path_ = __webpack_require__(76760);
 // EXTERNAL MODULE: ./src/api/storages/types.ts
 var types = __webpack_require__(61483);
 // EXTERNAL MODULE: ./src/config.ts
@@ -243,59 +245,96 @@ var localStorage = __webpack_require__(44728);
 
 
 
-
 const storages = {
   [types/* StorageType */.e.IndexedDb]: idb/* default */.A,
   [types/* StorageType */.e.LocalStorage]: localStorage/* default */.A,
   [types/* StorageType */.e.ExtensionLocal]: extension/* default */.A,
   [types/* StorageType */.e.CapacitorStorage]: capacitorStorage/* default */.A
 };
-let currentStorage = resolveDefaultStorage();
-const storage = {
-  getItem(name, force) {
-    return currentStorage.getItem(name, force);
-  },
-  setItem(name, value) {
-    return currentStorage.setItem(name, value);
-  },
-  removeItem(name) {
-    return currentStorage.removeItem(name);
-  },
-  clear() {
-    return currentStorage.clear();
-  },
-  async getAll() {
-    if (currentStorage.getAll) {
-      return currentStorage.getAll();
-    }
-    return {};
-  },
-  async setMany(items) {
-    if (currentStorage.setMany) {
-      await currentStorage.setMany(items);
-      return;
-    }
-    await Promise.all(Object.entries(items).map(_ref => {
-      let [key, value] = _ref;
-      return storage.setItem(key, value);
-    }));
-  },
-  async getMany(keys) {
-    if (currentStorage.getMany) {
-      return currentStorage.getMany(keys);
-    }
-    const entries = await Promise.all(keys.map(async key => [key, await storage.getItem(key)]));
-    return Object.fromEntries(entries);
+let storageContext;
+// Browser single-runtime fallback stays opt-in via configureStorage(); runtime-owned work must use withStorage().
+let legacyStorage;
+const storage = createStorageFacade(() => getCurrentStorage());
+function createStorage(storageConfig) {
+  return storageConfig ? resolveStorage(storageConfig) : resolveDefaultStorage();
+}
+function getCurrentStorage() {
+  var _getStorageContext;
+  const runtimeStorage = (_getStorageContext = getStorageContext()) === null || _getStorageContext === void 0 ? void 0 : _getStorageContext.getStore();
+  if (runtimeStorage) {
+    return runtimeStorage;
   }
-};
+  if (isBrowserSingleRuntimeStorageAllowed() && legacyStorage) {
+    return legacyStorage;
+  }
+  throw new Error('Storage access requires an explicit runtime storage context');
+}
+function withStorage(storageInstance, fn) {
+  const context = getStorageContext();
+  return context ? context.run(storageInstance, fn) : fn();
+}
 function configureStorage(storageConfig) {
-  currentStorage = storageConfig ? resolveStorage(storageConfig) : resolveDefaultStorage();
-  return currentStorage;
+  const nextStorage = createStorage(storageConfig);
+  if (isBrowserSingleRuntimeStorageAllowed()) {
+    legacyStorage = nextStorage;
+  }
+  return nextStorage;
 }
 /* harmony default export */ const api_storages = ({
   ...storages,
   [types/* StorageType */.e.NodeFile]: createNodeFileStorage
 });
+function createStorageFacade(resolveStorageInstance) {
+  return {
+    getItem(name, force) {
+      return resolveStorageInstance().getItem(name, force);
+    },
+    setItem(name, value) {
+      return resolveStorageInstance().setItem(name, value);
+    },
+    async mutateItem(name, mutate) {
+      const storageInstance = resolveStorageInstance();
+      if (storageInstance.mutateItem) {
+        return storageInstance.mutateItem(name, mutate);
+      }
+      const nextValue = mutate(await storageInstance.getItem(name));
+      await storageInstance.setItem(name, nextValue);
+      return nextValue;
+    },
+    removeItem(name) {
+      return resolveStorageInstance().removeItem(name);
+    },
+    clear() {
+      return resolveStorageInstance().clear();
+    },
+    async getAll() {
+      const storageInstance = resolveStorageInstance();
+      if (storageInstance.getAll) {
+        return storageInstance.getAll();
+      }
+      return {};
+    },
+    async setMany(items) {
+      const storageInstance = resolveStorageInstance();
+      if (storageInstance.setMany) {
+        await storageInstance.setMany(items);
+        return;
+      }
+      await Promise.all(Object.entries(items).map(_ref => {
+        let [key, value] = _ref;
+        return storageInstance.setItem(key, value);
+      }));
+    },
+    async getMany(keys) {
+      const storageInstance = resolveStorageInstance();
+      if (storageInstance.getMany) {
+        return storageInstance.getMany(keys);
+      }
+      const entries = await Promise.all(keys.map(async key => [key, await storageInstance.getItem(key)]));
+      return Object.fromEntries(entries);
+    }
+  };
+}
 function resolveDefaultStorage() {
   return src_config/* IS_EXTENSION */.hL1 ? extension/* default */.A : src_config/* IS_CAPACITOR */.UMQ ? capacitorStorage/* default */.A : idb/* default */.A;
 }
@@ -320,13 +359,39 @@ function loadBundledNodeFileStorageModule() {
   if (!payloadDir) {
     return undefined;
   }
-  const modulePath = (0,external_node_path_.resolve)(payloadDir, 'nodeFile.cjs');
+  const modulePath = resolveBundledNodeFileModulePath(payloadDir);
   if (typeof ((_process$mainModule = process.mainModule) === null || _process$mainModule === void 0 ? void 0 : _process$mainModule.require) !== 'function') {
     return undefined;
   }
   return process.mainModule.require(modulePath);
 }
-function getRequire() {
+function resolveBundledNodeFileModulePath(payloadDir) {
+  return joinFilePath(payloadDir, 'nodeFile.cjs');
+}
+function getStorageContext() {
+  if (storageContext !== undefined) {
+    return storageContext ?? undefined;
+  }
+  const require = getOptionalRequire();
+  if (!require) {
+    storageContext = null;
+    return undefined;
+  }
+  try {
+    const {
+      AsyncLocalStorage
+    } = require('node:async_hooks');
+    storageContext = new AsyncLocalStorage();
+    return storageContext;
+  } catch (_err) {
+    storageContext = null;
+    return undefined;
+  }
+}
+function isBrowserSingleRuntimeStorageAllowed() {
+  return typeof window !== 'undefined' || typeof document !== 'undefined';
+}
+function getOptionalRequire() {
   try {
     var _globalThis$eval;
     const indirectRequire = (_globalThis$eval = globalThis.eval) === null || _globalThis$eval === void 0 ? void 0 : _globalThis$eval.call(globalThis, 'require');
@@ -344,6 +409,21 @@ function getRequire() {
   // removed by dead control flow
 
 }
+function getRequire() {
+  const require = getOptionalRequire();
+  if (require) {
+    return require;
+  }
+  throw new Error('Node-compatible require is unavailable for node-file storage');
+}
+function joinFilePath(directoryPath, fileName) {
+  if (!directoryPath) {
+    return fileName;
+  }
+  const separator = directoryPath.includes('\\') ? '\\' : '/';
+  const trimmedDirectoryPath = directoryPath.replace(/[\\/]+$/, '');
+  return `${trimmedDirectoryPath}${separator}${fileName}`;
+}
 ;// ./headless/runtime/autonomyMode.ts
 
 
@@ -354,7 +434,7 @@ async function restoreAutonomyMode() {
   return normalizeAutonomyMode(storedMode);
 }
 async function persistAutonomyMode(mode) {
-  await storage.setItem(AUTONOMY_MODE_STORAGE_KEY, mode);
+  await storage.mutateItem(AUTONOMY_MODE_STORAGE_KEY, () => mode);
 }
 function isHeadlessAutonomyMode(mode) {
   return HEADLESS_AUTONOMY_MODES.includes(mode);
@@ -1339,6 +1419,7 @@ const CHAIN_CONFIG = {
     isEncryptedCommentSupported: true,
     canTransferFullNativeBalance: true,
     isLedgerSupported: true,
+    multiWalletSupport: 'version',
     isNftSupported: true,
     addressRegex: /^([-\w_]{48}|0:[\da-h]{64})$/i,
     addressPrefixRegex: /^([-\w_]{1,48}|0:[\da-h]{0,64})$/i,
@@ -1458,6 +1539,7 @@ const CHAIN_CONFIG = {
     isEncryptedCommentSupported: false,
     canTransferFullNativeBalance: false,
     isLedgerSupported: false,
+    multiWalletSupport: 'path',
     isNftSupported: true,
     addressRegex: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
     addressPrefixRegex: /^[1-9A-HJ-NP-Za-km-z]{0,44}$/,
@@ -3774,7 +3856,9 @@ const shortenAddress = (0,withCache/* default */.A)(function (address) {
 });
 ;// ./src/util/account.ts
 /* unused harmony import specifier */ var APP_NAME;
+/* unused harmony import specifier */ var escapeStringRegexp;
 /* unused harmony import specifier */ var account_shortenAddress;
+
 
 
 function parseAccountId(accountId) {
@@ -3852,6 +3936,16 @@ function generateAccountTitle(params) {
   const networkPrefix = isMainnet ? '' : 'Testnet ';
   const postfix = titlePostfix ? ` ${titlePostfix}` : '';
   return `${networkPrefix}${config.prefix} ${config.count}${postfix}`;
+}
+function generateNextSubwalletTitle(baseTitle, accounts) {
+  // Match existing "{baseTitle}.{number}" accounts to find the next available number
+  const pattern = new RegExp(`^${escapeStringRegexp(baseTitle)}\\.(\\d+)$`);
+  const existingNums = Object.values(accounts).map(acc => {
+    var _acc$title;
+    return (_acc$title = acc.title) === null || _acc$title === void 0 ? void 0 : _acc$title.match(pattern);
+  }).filter(Boolean).map(m => Number(m[1]));
+  const nextNum = existingNums.length > 0 ? Math.max(...existingNums) + 1 : 1;
+  return `${baseTitle}.${nextNum}`;
 }
 ;// ./src/api/common/accounts.ts
 
@@ -3953,34 +4047,38 @@ async function getAccountValue(accountId, key) {
 }
 async function removeAccountValue(accountId, key) {
   return getWriteQueue(key).run(async () => {
-    const data = await storage.getItem(key);
-    if (!data) return;
-    const {
-      [accountId]: _removed,
-      ...restData
-    } = data;
-    await storage.setItem(key, restData);
+    await storage.mutateItem(key, data => {
+      if (!data) return data;
+      const {
+        [accountId]: _removed,
+        ...restData
+      } = data;
+      return restData;
+    });
   });
 }
 async function setAccountValue(accountId, key, value) {
   return getWriteQueue(key).run(async () => {
-    const data = await storage.getItem(key);
-    await storage.setItem(key, {
+    await storage.mutateItem(key, data => ({
       ...data,
       [accountId]: value
-    });
+    }));
   });
 }
 async function removeNetworkAccountsValue(network, key) {
   return getWriteQueue(key).run(async () => {
-    const data = await storage.getItem(key);
-    if (!data) return;
-    for (const accountId of Object.keys(data)) {
-      if (parseAccountId(accountId).network === network) {
-        delete data[accountId];
+    await storage.mutateItem(key, data => {
+      if (!data) return data;
+      const nextData = {
+        ...data
+      };
+      for (const accountId of Object.keys(nextData)) {
+        if (parseAccountId(accountId).network === network) {
+          delete nextData[accountId];
+        }
       }
-    }
-    await storage.setItem(key, data);
+      return nextData;
+    });
   });
 }
 async function getCurrentNetwork() {
@@ -4003,7 +4101,8 @@ function waitLogin() {
 }
 function getAccountChains(account) {
   return (0,iteratees/* mapValues */.LG)(account.byChain, wallet => ({
-    address: wallet.address
+    address: wallet.address,
+    derivation: wallet.derivation
   }));
 }
 function doesAccountHaveChain(account, chain) {
@@ -4213,11 +4312,14 @@ let SettingsState = /*#__PURE__*/function (SettingsState) {
   SettingsState[SettingsState["Disclaimer"] = 8] = "Disclaimer";
   SettingsState[SettingsState["NativeBiometricsTurnOn"] = 9] = "NativeBiometricsTurnOn";
   SettingsState[SettingsState["SelectTokenList"] = 10] = "SelectTokenList";
-  SettingsState[SettingsState["WalletVersion"] = 11] = "WalletVersion";
-  SettingsState[SettingsState["LedgerConnectHardware"] = 12] = "LedgerConnectHardware";
-  SettingsState[SettingsState["LedgerSelectWallets"] = 13] = "LedgerSelectWallets";
-  SettingsState[SettingsState["HiddenNfts"] = 14] = "HiddenNfts";
-  SettingsState[SettingsState["BackupWallet"] = 15] = "BackupWallet";
+  SettingsState[SettingsState["WalletVariants"] = 11] = "WalletVariants";
+  // Wallet Derivations
+  SettingsState[SettingsState["WalletVersions"] = 12] = "WalletVersions";
+  // TON Versions
+  SettingsState[SettingsState["LedgerConnectHardware"] = 13] = "LedgerConnectHardware";
+  SettingsState[SettingsState["LedgerSelectWallets"] = 14] = "LedgerSelectWallets";
+  SettingsState[SettingsState["HiddenNfts"] = 15] = "HiddenNfts";
+  SettingsState[SettingsState["BackupWallet"] = 16] = "BackupWallet";
   return SettingsState;
 }({});
 let MintCardState = /*#__PURE__*/function (MintCardState) {
@@ -5058,15 +5160,13 @@ const SOLANA_PROGRAM_IDS = {
   ]
 };
 const WSOL_MINT = 'So11111111111111111111111111111111111111112';
-const SOLANA_DEFAULT_DERIVATION_PATH = `m/44'/501'/0'/0'`; // default phantom
+const SOLANA_DEFAULT_DERIVATION_PATH = (/* unused pure expression or super */ null && (`m/44'/501'/0'/0'`)); // default phantom
 
 const SOLANA_DERIVATION_PATHS = {
-  bip44Change: `m/44'/501'/{index}'/0'`,
-  // phantom
-  bip44: `m/44'/501'/{index}'`,
-  // trust
-  bip44Deprecated: `m/501'/{index}'/0'/0'`,
-  default: `m/44'/501'` // default
+  phantom: `m/44'/501'/{index}'/0'`,
+  trust: `m/44'/501'/{index}'`,
+  legacy: `m/501'/{index}'/0'/0'`,
+  default: `m/44'/501'`
 };
 
 // TODO: switch to actual data fetching
@@ -5361,6 +5461,26 @@ function getAddressInfo(network, addressOrDomain) {
 async function getIsWalletActive(network, address) {
   const isWalletActive = await callBackendGet(`/utils/checkIsInitWallet?address=${address}&chain=solana`);
   return isWalletActive.result;
+}
+function extractIndexFromPath(path) {
+  for (const template of Object.values(SOLANA_DERIVATION_PATHS)) {
+    if (!template.includes('{index}')) {
+      if (path === template) {
+        return 0;
+      }
+      continue;
+    }
+    const escaped = template.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = `^${escaped.replace('\\{index\\}', '(\\d+)')}$`;
+    const match = path.match(new RegExp(pattern));
+    if (match) {
+      const index = Number(match[1]);
+      if (!Number.isNaN(index)) {
+        return index;
+      }
+    }
+  }
+  return 0;
 }
 ;// ./src/api/chains/solana/util/metadata.ts
 
@@ -5814,7 +5934,39 @@ async function _00020_start() {
     // The key doesn't exist
   }
 }
+// EXTERNAL MODULE: ./src/api/chains/ton/constants.ts
+var constants = __webpack_require__(9941);
+;// ./src/api/migrations/00021.ts
+
+
+async function _00021_start() {
+  const accounts = await storage.getItem('accounts');
+  if (!accounts) {
+    return;
+  }
+  let hasChanges = false;
+  Object.values(accounts).forEach(account => {
+    if (account.type !== 'bip39') {
+      return;
+    }
+    const tonWallet = account.byChain.ton;
+    if (!tonWallet || tonWallet.derivation) {
+      return;
+    }
+    tonWallet.derivation = {
+      path: constants/* TON_BIP39_PATH */.W2,
+      index: 0
+    };
+    hasChanges = true;
+  });
+  if (!hasChanges) {
+    return;
+  }
+  await storage.setItem('accounts', accounts);
+}
 ;// ./src/api/migrations/index.ts
+
+
 
 
 
@@ -5843,7 +5995,7 @@ var utils = __webpack_require__(51068);
 
 
 
-const actualStateVersion = 21;
+const actualStateVersion = 22;
 function buildLocalTransaction(params, normalizedAddress, subId) {
   const id = buildLocalTxId(params.id, subId);
   return updateActivityMetadata({
@@ -6176,6 +6328,11 @@ async function migrateStorage(onUpdate, ton, accountIds) {
   if (version === 20) {
     await _00020_start();
     version = 21;
+    await storage.setItem('stateVersion', version);
+  }
+  if (version === 21) {
+    await _00021_start();
+    version = 22;
     await storage.setItem('stateVersion', version);
   }
 }
@@ -6674,6 +6831,11 @@ function removeSensitiveDataFromError(error, sensitiveData) {
 
 
 
+const MULTIWALLET_BY_PATH_DEFAULT_COUNT = 2;
+const WALLET_DERIVATIONS_BATCH_SIZE = 6;
+const SETTINGS_MULTIWALLET_BY_PATH_COUNT = 4;
+const MAX_NON_EMPTY_WALLETS_TO_SCAN = 20;
+
 // Mimic @solana/kit signer w/o Web Crypto API
 function createNaclKeyPairSigner(privateKeyBytes) {
   const naclKeyPair = nacl_fast_default().sign.keyPair.fromSeed(privateKeyBytes);
@@ -6708,10 +6870,12 @@ async function fetchPrivateKeyString(accountId, password, account) {
     if (isMnemonicPrivateKey(mnemonic)) {
       return mnemonic[0];
     } else {
+      var _account$byChain$sola;
       const {
         network
       } = parseAccountId(accountId);
-      const privateKey = (await getRawWalletFromBip39Mnemonic(network, mnemonic)).rawPrivateKey;
+      const derivation = (_account$byChain$sola = account.byChain.solana) === null || _account$byChain$sola === void 0 ? void 0 : _account$byChain$sola.derivation;
+      const privateKey = (await getRawWalletFromBip39Mnemonic(network, mnemonic, derivation)).privateKeyBytes;
       return (0,utils/* bytesToHex */.My)(privateKey);
     }
   } catch (err) {
@@ -6720,11 +6884,16 @@ async function fetchPrivateKeyString(accountId, password, account) {
   }
 }
 async function getWalletFromBip39Mnemonic(network, mnemonic, isMigration) {
-  const raw = await getRawWalletFromBip39Mnemonic(network, mnemonic, isMigration);
+  const raw = await getRawWalletFromBip39Mnemonic(network, mnemonic, undefined, isMigration);
   return {
     address: raw.wallet.address,
     publicKey: (0,utils/* bytesToHex */.My)(raw.wallet.publicKeyBytes),
-    index: 0
+    index: 0,
+    derivation: {
+      path: raw.path,
+      index: raw.index,
+      label: raw.label
+    }
   };
 }
 function getWalletFromPrivateKey(network, privateKey) {
@@ -6755,20 +6924,102 @@ function getWalletFromAddress(network, addressOrDomain) {
     }
   };
 }
-async function getRawWalletFromBip39Mnemonic(network, mnemonic, isMigration) {
+async function createSubWalletFromDerivation(network, account, mnemonic) {
+  const current = account.byChain.solana;
+  if (!current) {
+    return {
+      error: api_types/* ApiCommonError */.QD.Unexpected
+    };
+  }
+  const {
+    derivation
+  } = current;
+  const defaultLabel = 'phantom';
+  const pathTemplate = (derivation === null || derivation === void 0 ? void 0 : derivation.path) ?? SOLANA_DERIVATION_PATHS[defaultLabel];
+  const startIndex = (derivation === null || derivation === void 0 ? void 0 : derivation.index) ?? 0;
   const seed = src/* mnemonicToSeedSync */.kw(mnemonic.join(' '));
-  const bestWallet = await pickBestWallet(network, seed.toString('hex'), isMigration);
+  const seedHex = seed.toString('hex');
+  let offset = startIndex + 1;
+  let scannedNonEmptyWallets = 0;
+  let emptySubwallet;
+  while (emptySubwallet === undefined) {
+    const batch = Array.from({
+      length: SETTINGS_MULTIWALLET_BY_PATH_COUNT
+    }, (_, indexInBatch) => getWalletVariantByIndex(seedHex, pathTemplate, offset + indexInBatch));
+    const balances = await Promise.all(batch.map(_ref => {
+      let {
+        wallet
+      } = _ref;
+      return getWalletBalance(network, wallet.address);
+    }));
+    for (const [i, subwallet] of batch.entries()) {
+      if (balances[i] === 0n) {
+        emptySubwallet = subwallet;
+        break;
+      }
+      scannedNonEmptyWallets += 1;
+      if (scannedNonEmptyWallets >= MAX_NON_EMPTY_WALLETS_TO_SCAN) {
+        break;
+      }
+    }
+    if (scannedNonEmptyWallets >= MAX_NON_EMPTY_WALLETS_TO_SCAN) {
+      break;
+    }
+    offset += SETTINGS_MULTIWALLET_BY_PATH_COUNT;
+    if (emptySubwallet === undefined) {
+      await (0,schedulers/* pause */.v7)(500);
+    }
+  }
+  if (emptySubwallet === undefined) {
+    return {
+      error: api_types/* ApiCommonError */.QD.Unexpected
+    };
+  }
+  const signer = emptySubwallet.wallet;
   return {
-    wallet: bestWallet.wallet,
-    rawPrivateKey: bestWallet.privateKeyBytes
+    address: signer.address,
+    publicKey: (0,utils/* bytesToHex */.My)(signer.publicKeyBytes),
+    index: current.index,
+    derivation: {
+      path: pathTemplate,
+      index: emptySubwallet.index,
+      label: (derivation === null || derivation === void 0 ? void 0 : derivation.label) || defaultLabel
+    }
   };
 }
-const MULTIWALLET_BY_PATH_COUNT = 2;
-async function pickBestWallet(network, seed, isMigration) {
-  const addresses = Object.entries(SOLANA_DERIVATION_PATHS).map(e => {
+async function getRawWalletFromBip39Mnemonic(network, mnemonic, derivation, isMigration) {
+  const seed = src/* mnemonicToSeedSync */.kw(mnemonic.join(' '));
+  if (derivation) {
+    const wallet = getWalletVariantByIndex(seed.toString('hex'), derivation.path, derivation.index);
+    return {
+      ...wallet,
+      label: derivation.label
+    };
+  } else {
+    const bestWallet = await pickBestWallet(network, seed.toString('hex'), isMigration);
+    return bestWallet;
+  }
+}
+function getWalletVariantByIndex(seed, path, index) {
+  const seedByCustomPath = derivePath(path.replace('{index}', index.toString()), seed).key;
+  const derivedKeypair = nacl_fast_default().sign.keyPair.fromSeed(seedByCustomPath);
+  const privateKeyBytes = derivedKeypair.secretKey.subarray(0, 32);
+  const wallet = createNaclKeyPairSigner(new Uint8Array(privateKeyBytes));
+  return {
+    wallet,
+    privateKeyBytes,
+    path,
+    index
+  };
+}
+function getWalletVariantsByPath(seed) {
+  let count = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : MULTIWALLET_BY_PATH_DEFAULT_COUNT;
+  let offset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+  const addresses = Object.entries(SOLANA_DERIVATION_PATHS).flatMap(e => {
     const acc = [];
-    for (let i = 0; i < (e[0] === 'default' ? 1 : MULTIWALLET_BY_PATH_COUNT); i++) {
-      const path = e[1].replace('{index}', i.toString());
+    for (let i = 0; i < (e[0] === 'default' ? 1 : count); i++) {
+      const index = offset + i;
+      const path = e[1].replace('{index}', index.toString());
       const seedByCustomPath = derivePath(path, seed).key;
       const derivedKeypair = nacl_fast_default().sign.keyPair.fromSeed(seedByCustomPath);
       const privateKeyBytes = derivedKeypair.secretKey.subarray(0, 32);
@@ -6776,12 +7027,61 @@ async function pickBestWallet(network, seed, isMigration) {
       acc.push({
         wallet,
         privateKeyBytes,
-        path
+        path: e[1],
+        label: e[0],
+        index
       });
     }
     return acc;
-  }).flat();
-  const defaultAddress = addresses.find(e => e.path === SOLANA_DEFAULT_DERIVATION_PATH);
+  });
+  return addresses;
+}
+async function getWalletVariants(network, account, page, isTestnetSubwalletId, mnemonic) {
+  if (!mnemonic) {
+    return {
+      error: api_types/* ApiCommonError */.QD.Unexpected
+    };
+  }
+  const seed = src/* mnemonicToSeedSync */.kw(mnemonic.join(' '));
+  const offset = page * SETTINGS_MULTIWALLET_BY_PATH_COUNT;
+  const addreses = getWalletVariantsByPath(seed.toString('hex'), SETTINGS_MULTIWALLET_BY_PATH_COUNT, offset);
+  const batches = (0,iteratees/* split */.lD)(addreses, WALLET_DERIVATIONS_BATCH_SIZE);
+  const addressesWithBalances = [];
+  for (const batch of batches) {
+    const addressBalances = await Promise.all(batch.map(async e => ({
+      wallet: e.wallet,
+      balance: await getWalletBalance(network, e.wallet.address),
+      privateKeyBytes: e.privateKeyBytes,
+      path: e.path,
+      label: e.label,
+      index: e.index
+    })));
+    addressesWithBalances.push(...addressBalances);
+    await (0,schedulers/* pause */.v7)(500);
+  }
+  return addressesWithBalances.map(e => ({
+    chain: 'solana',
+    wallet: {
+      address: e.wallet.address,
+      publicKey: (0,utils/* bytesToHex */.My)(e.wallet.publicKeyBytes),
+      index: account.byChain.solana.index,
+      derivation: {
+        path: e.path,
+        index: e.index,
+        label: e.label
+      }
+    },
+    balance: e.balance,
+    metadata: {
+      type: 'path',
+      path: e.path.replace('{index}', e.index.toString()),
+      label: e.label
+    }
+  }));
+}
+async function pickBestWallet(network, seed, isMigration) {
+  const addresses = getWalletVariantsByPath(seed);
+  const defaultAddress = addresses.find(e => e.path === SOLANA_DERIVATION_PATHS.phantom);
   if (isMigration) {
     return defaultAddress;
   }
@@ -6789,7 +7089,9 @@ async function pickBestWallet(network, seed, isMigration) {
     wallet: e.wallet,
     balance: await getWalletBalance(network, e.wallet.address),
     privateKeyBytes: e.privateKeyBytes,
-    path: e.path
+    path: e.path,
+    index: e.index,
+    label: e.label
   })));
   const bestWalletByBalance = addressBalances.reduce((best, current) => {
     return current.balance > ((best === null || best === void 0 ? void 0 : best.balance) ?? 0n) ? current : best;
@@ -6806,7 +7108,9 @@ async function pickBestWallet(network, seed, isMigration) {
       wallet: e.wallet,
       lastTxTimestamp: (_await$getWalletLastT = await getWalletLastTransaction(network, e.wallet.address)) === null || _await$getWalletLastT === void 0 ? void 0 : _await$getWalletLastT.blockTime,
       privateKeyBytes: e.privateKeyBytes,
-      path: e.path
+      path: e.path,
+      index: e.index,
+      label: e.label
     };
   }));
   const bestWalletByLastTx = addressLastTxs.reduce((best, current) => {
@@ -8204,7 +8508,7 @@ async function checkTransactionDraftWithGasless(_ref) {
   }
   const gaslessExplainedFee = {
     isGasless: true,
-    canTransferFullBalance: true,
+    canTransferFullBalance: false,
     realFee: {
       precision: 'exact',
       terms: {
@@ -8541,7 +8845,8 @@ function estimateDiesel(transaction, feeToken, sourceWallet) {
   return callBackendPost('/diesel/solana/estimate', {
     transaction,
     fee_token: feeToken,
-    source_wallet: sourceWallet
+    source_wallet: sourceWallet,
+    signer_key: src_config/* SOLANA_GASLESS_PAYER_ADDRESS */.NlJ
   });
 }
 async function getTokenTransferATAs(tokenAddress, source, destination, tokenProgram) {
@@ -11469,6 +11774,7 @@ function balanceByTokenAddressToBySlug(chain, byAddress) {
 
 
 
+
 const activeSolanaWalletTiming = {
   ...activeWalletTiming,
   forcedPollingPeriod: {
@@ -11483,25 +11789,35 @@ const inactiveSolanaWalletTiming = {
     notFocused: 10 * MINUTE
   }
 };
-function setupActivePolling(accountId, account, onUpdate, onUpdatingStatusChange, newestActivityTimestamps) {
+function setupActivePolling(accountId, account, onUpdate, onUpdatingStatusChange, newestActivityTimestamps, shouldResetBalances) {
   const {
     address
   } = account.byChain.solana;
   const activityPolling = setupActivityPolling(accountId, newestActivityTimestamps, onUpdate, onUpdatingStatusChange.bind(undefined, 'activities'));
   const nftPolling = setupNftPolling(accountId, address, true, activityPolling.update, onUpdate);
-  const balancePolling = setupBalancePolling(accountId, address, true, activityPolling.update, onUpdate, onUpdatingStatusChange.bind(undefined, 'balance'));
+  const balancePolling = setupBalancePolling(accountId, address, true, activityPolling.update, onUpdate, onUpdatingStatusChange.bind(undefined, 'balance'), shouldResetBalances);
   return () => {
     nftPolling.stop();
     balancePolling.stop();
   };
 }
-function setupBalancePolling(accountId, address, isActive, activityUpdate, onUpdate, onUpdatingStatusChange) {
+function setupBalancePolling(accountId, address, isActive, activityUpdate, onUpdate, onUpdatingStatusChange, shouldResetBalances) {
   const {
     network
   } = parseAccountId(accountId);
   const checkIsWalletActive = async () => {
     return await getIsWalletActive(network, address);
   };
+  if (shouldResetBalances) {
+    onUpdate({
+      type: 'updateBalances',
+      accountId,
+      chain: 'solana',
+      balances: {
+        [getChainConfig('solana').nativeToken.slug]: 0n
+      }
+    });
+  }
   const balanceStream = new BalanceStream('solana', getHeliusSocket(network), network, address, () => sendUpdateTokens(onUpdate), isActive ? activeSolanaWalletTiming : inactiveSolanaWalletTiming, fetchAccountAssets, undefined, isActive ? undefined : getConcurrencyLimiter('solana', network), checkIsWalletActive);
   balanceStream.onUpdate(balances => {
     onUpdate({
@@ -11733,6 +12049,8 @@ const solanaSdk = {
   getWalletFromPrivateKey: getWalletFromPrivateKey,
   getWalletFromAddress: getWalletFromAddress,
   getWalletsFromLedgerAndLoadBalance: notSupported,
+  getWalletVariants: getWalletVariants,
+  createSubWalletFromDerivation: createSubWalletFromDerivation,
   setupActivePolling: setupActivePolling,
   setupInactivePolling: setupInactivePolling,
   fetchToken: notSupported,
@@ -11869,8 +12187,6 @@ function makeTimestampBuffer(unixSeconds, isBigEndian) {
 var node = __webpack_require__(38873);
 // EXTERNAL MODULE: ./src/util/dns.ts
 var util_dns = __webpack_require__(67442);
-// EXTERNAL MODULE: ./src/api/chains/ton/constants.ts
-var constants = __webpack_require__(9941);
 ;// ./src/util/datetime.ts
 function toMilliseconds(seconds) {
   return seconds * 1000;
@@ -14703,6 +15019,7 @@ async function updateTokenHashes(network, tokenSlugs, sendUpdateTokens) {
 
 
 
+
 async function getTokenBalances(network, address) {
   const {
     jettonWallets,
@@ -14777,8 +15094,8 @@ function getJettonMetadataFromMap(rawAddress, metadata) {
     return undefined;
   }
   return {
-    name: tokenMetadata.name ?? rawAddress,
-    symbol: tokenMetadata.symbol ?? tokenMetadata.name ?? rawAddress,
+    name: tokenMetadata.name ?? src_config/* UNKNOWN_TOKEN */.Bx3.symbol,
+    symbol: tokenMetadata.symbol ?? tokenMetadata.name ?? src_config/* UNKNOWN_TOKEN */.Bx3.symbol,
     description: tokenMetadata.description,
     image: tokenMetadata.image,
     decimals: ((_tokenMetadata$extra = tokenMetadata.extra) === null || _tokenMetadata$extra === void 0 ? void 0 : _tokenMetadata$extra.decimals) ?? constants/* DEFAULT_DECIMALS */.fI
@@ -15124,7 +15441,7 @@ async function getWalletSeqno(network, walletOrAddress) {
   } = await getWalletInfo(network, walletOrAddress);
   return seqno || 0;
 }
-async function wallet_pickBestWallet(network, publicKey) {
+async function pickBestWalletVersion(network, publicKey) {
   const allWallets = await getWalletVersionInfos(network, publicKey);
   const defaultWallets = allWallets.filter(_ref => {
     let {
@@ -15168,9 +15485,70 @@ async function wallet_pickBestWallet(network, publicKey) {
     jettonWallets: v4JettonBalances = []
   } = await fetchJettonWallets(network, v4Wallet.address, 1);
   if (v4JettonBalances.length > 0) {
-    return v4Wallet;
+    return {
+      ...v4Wallet,
+      withJettonBalances: true
+    };
   }
   return defaultWallet;
+}
+async function wallet_pickBestWallet(network, variants) {
+  const bestWalletsByKey = await Promise.all(variants.map(async _ref5 => {
+    let {
+      publicKey,
+      derivation
+    } = _ref5;
+    const {
+      wallet,
+      version,
+      balance,
+      lastTxId,
+      withJettonBalances
+    } = await pickBestWalletVersion(network, publicKey);
+    return {
+      wallet,
+      version,
+      balance,
+      lastTxId,
+      withJettonBalances,
+      derivation
+    };
+  }));
+
+  // Handle TON-only wallet or privateKey import
+  if (bestWalletsByKey.length === 1 && !bestWalletsByKey[0].derivation) {
+    return bestWalletsByKey[0];
+  }
+  const withBiggestBalance = bestWalletsByKey.reduce((best, current) => {
+    return current.balance > ((best === null || best === void 0 ? void 0 : best.balance) ?? 0n) ? current : best;
+  }, undefined);
+  if (withBiggestBalance) {
+    return withBiggestBalance;
+  }
+  const withLastTx = (0,iteratees/* findLast */.Uk)(bestWalletsByKey, _ref6 => {
+    let {
+      lastTxId
+    } = _ref6;
+    return !!lastTxId;
+  });
+  if (withLastTx) {
+    return withLastTx;
+  }
+  const withJettonBalances = (0,iteratees/* findLast */.Uk)(bestWalletsByKey, _ref7 => {
+    let {
+      withJettonBalances
+    } = _ref7;
+    return !!withJettonBalances;
+  });
+  if (withJettonBalances) {
+    return withJettonBalances;
+  }
+  return bestWalletsByKey.find(_ref8 => {
+    let {
+      derivation
+    } = _ref8;
+    return (derivation === null || derivation === void 0 ? void 0 : derivation.index) === 0;
+  }) || bestWalletsByKey[0];
 }
 async function getWalletVersionInfos(network, publicKey) {
   let versions = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : constants/* ALL_WALLET_VERSIONS */.ov;
@@ -15284,6 +15662,10 @@ async function verifyLedgerWalletAddress(accountId) {
 
 
 
+
+const auth_MULTIWALLET_BY_PATH_DEFAULT_COUNT = 2;
+const auth_SETTINGS_MULTIWALLET_BY_PATH_COUNT = 4;
+const auth_MAX_NON_EMPTY_WALLETS_TO_SCAN = 20;
 function generateMnemonic() {
   return node.generateMnemonic();
 }
@@ -15319,7 +15701,17 @@ async function fetchKeyPair(accountId, password, account) {
     if (isMnemonicPrivateKey(mnemonic)) {
       return privateKeyHexToKeyPair(mnemonic[0]);
     } else if (account.type === 'bip39') {
-      return bip39MnemonicToKeyPair(mnemonic);
+      var _account$byChain$ton;
+      const derivation = (_account$byChain$ton = account.byChain.ton) === null || _account$byChain$ton === void 0 ? void 0 : _account$byChain$ton.derivation;
+      if (!derivation) {
+        throw new Error(`No TON derivation found for account ${accountId}`);
+      }
+      const seed = src/* mnemonicToSeedSync */.kw(mnemonic.join(' '));
+      const keypair = auth_getWalletVariantByIndex(seed.toString('hex'), derivation.index);
+      if (!keypair) {
+        throw new Error(`No TON keypair found for derivation ${derivation.index} on account ${accountId}`);
+      }
+      return keypair;
     } else {
       return await node.mnemonicToKeyPair(mnemonic);
     }
@@ -15336,52 +15728,88 @@ async function rawSign(accountId, password, dataHex) {
   const signature = nacl_fast_default().sign.detached((0,utils/* hexToBytes */.aT)(dataHex), privateKey);
   return (0,utils/* bytesToHex */.My)(signature);
 }
-function auth_getWalletFromBip39Mnemonic(network, mnemonic, version) {
-  const {
-    publicKey
-  } = bip39MnemonicToKeyPair(mnemonic);
-  return getWalletFromKeys(network, publicKey, version);
+function auth_getWalletFromBip39Mnemonic(network, mnemonic) {
+  const variants = bip39MnemonicToKeyPairs(mnemonic);
+  return getWalletFromKeys(network, variants);
 }
-async function getWalletFromMnemonic(network, mnemonic, version) {
+async function getWalletFromMnemonic(network, mnemonic) {
   const {
     publicKey
   } = await node.mnemonicToKeyPair(mnemonic);
-  return getWalletFromKeys(network, publicKey, version);
+  return getWalletFromKeys(network, [{
+    publicKey
+  }]);
 }
-function auth_getWalletFromPrivateKey(network, privateKey, version) {
+async function auth_getWalletFromPrivateKey(network, privateKey) {
   const {
     publicKey
   } = privateKeyHexToKeyPair(privateKey);
-  return getWalletFromKeys(network, publicKey, version);
+  return getWalletFromKeys(network, [{
+    publicKey
+  }]);
 }
-async function getWalletFromKeys(network, publicKey, version) {
-  let wallet;
-  let lastTxId;
-  if (version) {
-    wallet = buildWallet(publicKey, version, network === 'testnet');
-  } else {
-    ({
-      wallet,
-      version,
-      lastTxId
-    } = await wallet_pickBestWallet(network, publicKey));
-  }
+async function getWalletFromKeys(network, variants) {
+  const {
+    wallet,
+    version,
+    lastTxId,
+    derivation
+  } = await wallet_pickBestWallet(network, variants);
   const address = (0,tonCore/* toBase64Address */.vn)(wallet.address, false, network);
-  const publicKeyHex = (0,utils/* bytesToHex */.My)(publicKey);
+  const publicKeyHex = (0,utils/* bytesToHex */.My)(wallet.publicKey);
   return {
     publicKey: publicKeyHex,
     address,
     version,
     index: 0,
-    lastTxId
+    lastTxId,
+    derivation
   };
 }
-function bip39MnemonicToKeyPair(mnemonic) {
-  const hexSeed = src/* mnemonicToSeedSync */.kw(mnemonic.join(' '));
+function auth_getWalletVariantsByPath(seed) {
+  let count = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : auth_MULTIWALLET_BY_PATH_DEFAULT_COUNT;
+  let offset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+  const keypairs = [];
+  for (let i = 0; i < count; i++) {
+    const index = offset + i;
+    const path = constants/* TON_BIP39_PATH */.W2.replace('{index}', index.toString());
+    const {
+      key: privateKey
+    } = derivePath(path, seed);
+    const keypair = nacl_fast_default().sign.keyPair.fromSeed(privateKey);
+    keypairs.push({
+      ...keypair,
+      path: constants/* TON_BIP39_PATH */.W2,
+      index
+    });
+  }
+  ;
+  return keypairs;
+}
+function auth_getWalletVariantByIndex(seed, index) {
+  let pathTemplate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : constants/* TON_BIP39_PATH */.W2;
+  const path = pathTemplate.replace('{index}', index.toString());
   const {
     key: privateKey
-  } = derivePath(constants/* TON_BIP39_PATH */.W2, hexSeed.toString('hex'));
-  return nacl_fast_default().sign.keyPair.fromSeed(privateKey);
+  } = derivePath(path, seed);
+  const keypair = nacl_fast_default().sign.keyPair.fromSeed(privateKey);
+  return {
+    ...keypair,
+    path: pathTemplate,
+    index
+  };
+}
+function bip39MnemonicToKeyPairs(mnemonic) {
+  const hexSeed = src/* mnemonicToSeedSync */.kw(mnemonic.join(' '));
+  const variants = auth_getWalletVariantsByPath(hexSeed.toString('hex'));
+  return variants.map(e => ({
+    publicKey: e.publicKey,
+    secretKey: e.secretKey,
+    derivation: {
+      path: e.path,
+      index: e.index
+    }
+  }));
 }
 function getOtherVersionWallet(network, wallet, otherVersion, isTestnetSubwalletId) {
   if (!wallet.publicKey) {
@@ -15393,9 +15821,12 @@ function getOtherVersionWallet(network, wallet, otherVersion, isTestnetSubwallet
     address: newAddress,
     publicKey: wallet.publicKey,
     version: otherVersion,
-    index: wallet.index
+    index: wallet.index,
+    derivation: wallet.derivation
   };
 }
+
+// Used for View-account flow
 async function auth_getWalletFromAddress(network, addressOrDomain) {
   const resolvedAddress = await resolveAddress(network, addressOrDomain, true);
   if ('error' in resolvedAddress) return resolvedAddress;
@@ -15435,6 +15866,105 @@ async function getWalletsFromLedgerAndLoadBalance(network, accountIndices) {
     wallet,
     balance: walletInfos[wallet.address].balance
   }));
+}
+async function auth_getWalletVariants(network, account, page, isTestnetSubwalletId, mnemonic) {
+  if (!mnemonic) {
+    return {
+      error: api_types/* ApiCommonError */.QD.Unexpected
+    };
+  }
+  const seed = src/* mnemonicToSeedSync */.kw(mnemonic.join(' '));
+  const offset = page * auth_SETTINGS_MULTIWALLET_BY_PATH_COUNT;
+  const subwallets = auth_getWalletVariantsByPath(seed.toString('hex'), auth_SETTINGS_MULTIWALLET_BY_PATH_COUNT, offset);
+  const infos = await getWalletInfos(network, subwallets.map(e => (0,tonCore/* toBase64Address */.vn)(buildWallet(e.publicKey, 'W5').address, false, network)));
+  return Object.entries(infos).map(_ref => {
+    let [address, info] = _ref;
+    const currentVariant = subwallets.find(e => (0,tonCore/* toBase64Address */.vn)(buildWallet(e.publicKey, 'W5').address, false, network) === address);
+    return {
+      chain: 'ton',
+      wallet: {
+        address,
+        index: account.byChain.ton.index,
+        version: 'W5',
+        isTestnetSubwalletId,
+        isInitialized: info.isInitialized,
+        publicKey: (0,utils/* bytesToHex */.My)(currentVariant.publicKey),
+        derivation: {
+          path: currentVariant.path,
+          index: currentVariant.index
+        }
+      },
+      balance: info.balance,
+      metadata: {
+        type: 'path',
+        path: currentVariant.path.replace('{index}', currentVariant.index.toString())
+      }
+    };
+  });
+}
+async function auth_createSubWalletFromDerivation(network, account, mnemonic) {
+  const current = account.byChain.ton;
+  if (!current) {
+    return {
+      error: api_types/* ApiCommonError */.QD.Unexpected
+    };
+  }
+  const {
+    derivation,
+    version
+  } = current;
+  if (!derivation || version !== 'W5') {
+    return {
+      error: api_types/* ApiCommonError */.QD.Unexpected
+    };
+  }
+  const pathTemplate = derivation.path ?? constants/* TON_BIP39_PATH */.W2;
+  const startIndex = derivation.index ?? 0;
+  const seed = src/* mnemonicToSeedSync */.kw(mnemonic.join(' '));
+  const seedHex = seed.toString('hex');
+  let offset = startIndex + 1;
+  let scannedNonEmptyWallets = 0;
+  let emptySubwallet;
+  while (emptySubwallet === undefined) {
+    const keypairs = Array.from({
+      length: auth_SETTINGS_MULTIWALLET_BY_PATH_COUNT
+    }, (_, indexInBatch) => auth_getWalletVariantByIndex(seedHex, offset + indexInBatch, pathTemplate));
+    const addresses = keypairs.map(keypair => (0,tonCore/* toBase64Address */.vn)(buildWallet(keypair.publicKey, 'W5').address, false, network));
+    const infos = await getWalletInfos(network, addresses);
+    for (const [i, keypair] of keypairs.entries()) {
+      const address = addresses[i];
+      const info = infos[address];
+      if (!info || info.balance === 0n) {
+        emptySubwallet = keypair;
+        break;
+      }
+      scannedNonEmptyWallets += 1;
+      if (scannedNonEmptyWallets >= auth_MAX_NON_EMPTY_WALLETS_TO_SCAN) {
+        break;
+      }
+    }
+    if (scannedNonEmptyWallets >= auth_MAX_NON_EMPTY_WALLETS_TO_SCAN) {
+      break;
+    }
+    offset += auth_SETTINGS_MULTIWALLET_BY_PATH_COUNT;
+  }
+  if (emptySubwallet === undefined) {
+    return {
+      error: api_types/* ApiCommonError */.QD.Unexpected
+    };
+  }
+  const wallet = buildWallet(emptySubwallet.publicKey, 'W5');
+  const address = (0,tonCore/* toBase64Address */.vn)(wallet.address, false, network);
+  return {
+    address,
+    publicKey: (0,utils/* bytesToHex */.My)(emptySubwallet.publicKey),
+    version: 'W5',
+    index: current.index,
+    derivation: {
+      path: pathTemplate,
+      index: emptySubwallet.index
+    }
+  };
 }
 // EXTERNAL MODULE: ./src/lib/aes-js/index.js
 var aes_js = __webpack_require__(40478);
@@ -19438,7 +19968,7 @@ const NFT_FULL_INTERVAL = {
   notFocused: 5 * MINUTE
 };
 const DOUBLE_CHECK_NFT_PAUSE = 5 * SEC;
-function polling_setupActivePolling(accountId, account, onUpdate, onUpdatingStatusChange, newestActivityTimestamps) {
+function polling_setupActivePolling(accountId, account, onUpdate, onUpdatingStatusChange, newestActivityTimestamps, shouldResetBalances) {
   const balancePolling = polling_setupBalancePolling(accountId, account.byChain.ton.address, true, onUpdate, onUpdatingStatusChange.bind(undefined, 'balance'));
   const stopActivityPolling = polling_setupActivityPolling(accountId, account.byChain.ton.address, newestActivityTimestamps, handleWalletUpdate, onUpdate, onUpdatingStatusChange.bind(undefined, 'activities'));
   const domainPolling = setupDomainPolling(accountId, account.byChain.ton.address, onUpdate);
@@ -19733,7 +20263,7 @@ function setupWalletVersionsPolling(accountId, onUpdate) {
             ton: tonWallet
           }
         } = await fetchStoredAccount(accountId);
-        if (accountType === 'bip39' || !tonWallet) {
+        if (!tonWallet) {
           return 'stop';
         }
         const {
@@ -20099,6 +20629,8 @@ const tonSdk = {
   getWalletFromPrivateKey: auth_getWalletFromPrivateKey,
   getWalletFromAddress: auth_getWalletFromAddress,
   getWalletsFromLedgerAndLoadBalance: getWalletsFromLedgerAndLoadBalance,
+  getWalletVariants: auth_getWalletVariants,
+  createSubWalletFromDerivation: auth_createSubWalletFromDerivation,
   setupActivePolling: polling_setupActivePolling,
   setupInactivePolling: polling_setupInactivePolling,
   fetchToken: fetchToken,
@@ -20579,7 +21111,7 @@ function wallet_getAddressInfo(network, addressOrDomain) {
 
 
 
-function tron_polling_setupActivePolling(accountId, account, onUpdate, onUpdatingStatusChange, newestActivityTimestamps) {
+function tron_polling_setupActivePolling(accountId, account, onUpdate, onUpdatingStatusChange, newestActivityTimestamps, shouldResetBalances) {
   const {
     address
   } = account.byChain.tron;
@@ -21113,6 +21645,8 @@ const tronSdk = {
   // Ledger is relatively slow. So, to parallelize and speed up the loading, each balance should be loaded as soon as
   // the corresponding wallet is loaded from Ledger.
   getWalletsFromLedgerAndLoadBalance: tron_notSupported,
+  getWalletVariants: tron_notSupported,
+  createSubWalletFromDerivation: tron_notSupported,
   setupActivePolling: tron_polling_setupActivePolling,
   setupInactivePolling: tron_polling_setupInactivePolling,
   fetchToken: tron_notSupported,
@@ -21375,7 +21909,7 @@ const TONCONNECT_UNIVERSAL_URL = 'https://connect.mytonwallet.org';
 const CHECKIN_URL = 'https://checkin.mytonwallet.org';
 const WALLETCONNECT_PROTOCOL = 'wc:';
 ;// ./package.json
-const package_namespaceObject = {"rE":"4.7.6"};
+const package_namespaceObject = {"version":"4.8.3"};
 ;// ./src/util/tonConnectEnvironment.ts
 
 
@@ -21401,7 +21935,7 @@ function tonConnectGetDeviceInfo(account) {
   return {
     platform: getPlatform(),
     appName: src_config/* APP_NAME */.C39,
-    appVersion: package_namespaceObject.rE,
+    appVersion: package_namespaceObject.version,
     maxProtocolVersion: src_config/* TONCONNECT_PROTOCOL_VERSION */.gY_,
     features
   };
@@ -22546,7 +23080,7 @@ async function tryUpdateConfig() {
 }
 
 /** Call it every time the active account changes */
-async function setActivePollingAccount(accountId, newestActivityTimestamps) {
+async function setActivePollingAccount(accountId, newestActivityTimestamps, shouldResetBalances) {
   var _stopActiveAccountPol;
   (_stopActiveAccountPol = stopActiveAccountPolling) === null || _stopActiveAccountPol === void 0 || _stopActiveAccountPol();
   stopActiveAccountPolling = undefined;
@@ -22554,7 +23088,7 @@ async function setActivePollingAccount(accountId, newestActivityTimestamps) {
     const account = await fetchStoredAccount(accountId);
     const stopPollingFns = [!src_config/* IS_CORE_WALLET */.TI6 && setupAccountConfigPolling(accountId, account).stop, ...Object.keys(api_chains).map(chain => {
       if (doesAccountHaveChain(account, chain)) {
-        return api_chains[chain].setupActivePolling(accountId, account, polling_onUpdate, setUpdatingStatus.bind(undefined, accountId, chain), pickChainTimestamps(newestActivityTimestamps, chain));
+        return api_chains[chain].setupActivePolling(accountId, account, polling_onUpdate, setUpdatingStatus.bind(undefined, accountId, chain), pickChainTimestamps(newestActivityTimestamps, chain), shouldResetBalances);
       }
     })];
     stopActiveAccountPolling = () => {
@@ -22760,12 +23294,15 @@ function pickChainTimestamps(bySlug, chain) {
 
 
 async function init(onUpdate, args) {
+  const runtimeStorage = createStorage(args.storage);
   configureStorage(args.storage);
   connectUpdater(onUpdate);
   const environment = (0,api_environment/* setEnvironment */.k)(args);
   (0,connector/* initWindowConnector */.q)();
-  await initClientId();
-  await tryMigrateStorage(onUpdate, ton_namespaceObject, args.accountIds);
+  await withStorage(runtimeStorage, async () => {
+    await initClientId();
+    await tryMigrateStorage(onUpdate, ton_namespaceObject, args.accountIds);
+  });
   initAccounts(onUpdate);
   initAuth(onUpdate);
   initWallet(onUpdate);
@@ -22785,22 +23322,25 @@ async function init(onUpdate, args) {
     onDappsChanged: protocolManager.resetupRemoteConnection.bind(protocolManager)
   });
   if (args.langCode) {
-    void storage.setItem('langCode', args.langCode);
+    void runtimeStorage.setItem('langCode', args.langCode);
   }
-  void saveReferrer(args);
+  void saveReferrer(args, runtimeStorage);
 }
 function destroy() {
   void destroyPolling();
   disconnectUpdater();
 }
-async function saveReferrer(args) {
+async function saveReferrer(args, runtimeStorage) {
   const referrer = args.referrer ?? (await fetchBackendReferrer());
   if (referrer) {
-    await storage.setItem('referrer', referrer);
-    await initClientId();
+    await runtimeStorage.setItem('referrer', referrer);
+    await withStorage(runtimeStorage, async () => {
+      await initClientId();
+    });
   }
 }
 ;// ./src/api/methods/accounts.ts
+
 
 
 
@@ -22813,6 +23353,7 @@ function initAccounts(_onUpdate) {
 }
 async function activateAccount(accountId) {
   let newestActivityTimestamps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  let shouldResetBalances = arguments.length > 2 ? arguments[2] : undefined;
   const prevAccountId = await getCurrentAccountId();
   const isFirstLogin = !prevAccountId;
   await storage.setItem('currentAccountId', accountId);
@@ -22823,7 +23364,32 @@ async function activateAccount(accountId) {
   if (isFirstLogin) {
     sendUpdateTokens(accounts_onUpdate);
   }
-  void setActivePollingAccount(accountId, newestActivityTimestamps);
+  void setActivePollingAccount(accountId, newestActivityTimestamps, shouldResetBalances);
+}
+async function loadAccountsDerivations() {
+  const accounts = await fetchStoredAccounts();
+  for (const [accountId, account] of Object.entries(accounts)) {
+    for (const [chain, wallet] of Object.entries(account.byChain)) {
+      if (wallet !== null && wallet !== void 0 && wallet.derivation) {
+        var _Object$entries$find;
+        const derivationLabel = (_Object$entries$find = Object.entries(SOLANA_DERIVATION_PATHS).find(_ref => {
+          var _wallet$derivation;
+          let [_, path] = _ref;
+          return path === ((_wallet$derivation = wallet.derivation) === null || _wallet$derivation === void 0 ? void 0 : _wallet$derivation.path);
+        })) === null || _Object$entries$find === void 0 ? void 0 : _Object$entries$find[0];
+        accounts_onUpdate({
+          type: 'updateAccount',
+          accountId,
+          chain: chain,
+          derivation: {
+            path: wallet.derivation.path,
+            index: wallet.derivation.index,
+            label: wallet.derivation.label || derivationLabel
+          }
+        });
+      }
+    }
+  }
 }
 async function deactivateAllAccounts() {
   void setActivePollingAccount(undefined, {});
@@ -23131,6 +23697,8 @@ async function dapps_signDappData(dappChain, accountId, url, payload, password) 
 
 
 
+
+
 let auth_onUpdate;
 function initAuth(_onUpdate) {
   auth_onUpdate = _onUpdate;
@@ -23145,7 +23713,7 @@ async function auth_validateMnemonic(mnemonic) {
   }
   return await validateMnemonic(mnemonic);
 }
-async function importMnemonic(networks, mnemonic, password, version) {
+async function importMnemonic(networks, mnemonic, password) {
   const isBip39Mnemonic = !src_config/* IS_TON_MNEMONIC_ONLY */.HcU && validateBip39Mnemonic(mnemonic);
   const isTonMnemonic = await validateMnemonic(mnemonic);
   if (!isBip39Mnemonic && !isTonMnemonic) {
@@ -23161,7 +23729,7 @@ async function importMnemonic(networks, mnemonic, password, version) {
       let tonWallet;
       let shouldForceTonMnemonic = false;
       if (isBip39Mnemonic && isTonMnemonic) {
-        tonWallet = await getWalletFromMnemonic(network, mnemonic, version);
+        tonWallet = await getWalletFromMnemonic(network, mnemonic);
         if (tonWallet.lastTxId) {
           shouldForceTonMnemonic = true;
         }
@@ -23180,7 +23748,7 @@ async function importMnemonic(networks, mnemonic, password, version) {
           account.byChain[chain] = await api_chains[chain].getWalletFromBip39Mnemonic(network, mnemonic);
         }));
       } else {
-        tonWallet ||= await getWalletFromMnemonic(network, mnemonic, version);
+        tonWallet ||= await getWalletFromMnemonic(network, mnemonic);
         account = {
           type: 'ton',
           mnemonicEncrypted,
@@ -23313,8 +23881,11 @@ async function changePassword(oldPassword, password) {
 async function upgradeMultichainAccounts(password) {
   const accountsToUpgrade = Object.entries(await fetchStoredAccounts()).filter(_ref => {
     let [, account] = _ref;
-    return account.type === 'bip39' && !account.byChain.solana;
+    return account.type === 'bip39' && (!account.byChain.solana || !account.byChain.solana.derivation);
   });
+  if (accountsToUpgrade.length) {
+    (0,logs/* logDebug */.MD)('Upgrade multichain accounts', accountsToUpgrade);
+  }
   const updates = [];
   for (const [accountId, account] of accountsToUpgrade) {
     const mnemonic = await getMnemonic(accountId, password, account);
@@ -23331,7 +23902,7 @@ async function upgradeMultichainAccounts(password) {
     } = parseAccountId(accountId);
     const solanaWallet = await api_chains.solana.getWalletFromBip39Mnemonic(network, mnemonic, true);
     const currentAccount = await fetchStoredAccount(accountId);
-    if (currentAccount.type !== 'bip39' || currentAccount.byChain.solana) {
+    if (currentAccount.type !== 'bip39' || currentAccount.byChain.solana && currentAccount.byChain.solana.derivation) {
       continue;
     }
     await updateStoredAccount(accountId, {
@@ -23344,7 +23915,8 @@ async function upgradeMultichainAccounts(password) {
       type: 'updateAccount',
       accountId,
       chain: 'solana',
-      address: solanaWallet.address
+      address: solanaWallet.address,
+      derivation: solanaWallet.derivation
     });
     updates.push({
       accountId,
@@ -23429,7 +24001,167 @@ async function importNewWalletVersion(accountId, version, isTestnetSubwalletId) 
   return {
     isNew: true,
     accountId: newAccountId,
-    address: newAccount.byChain.ton.address
+    byChain: getAccountChains(newAccount)
+  };
+}
+async function methods_auth_getWalletVariants(network, chain, accountId, page, isTestnetSubwalletId, mnemonic) {
+  const account = await fetchStoredChainAccount(accountId, chain);
+  const chainVariants = await api_chains[chain].getWalletVariants(network, account, page, isTestnetSubwalletId, mnemonic);
+  if ('error' in chainVariants) {
+    return chainVariants;
+  }
+  const solanaAccount = account.byChain.solana;
+  if (chain === 'solana' && solanaAccount !== null && solanaAccount !== void 0 && solanaAccount.address && !solanaAccount.derivation && mnemonic) {
+    var _match$metadata;
+    const match = chainVariants.find(variant => {
+      var _variant$metadata;
+      return variant.wallet.address === solanaAccount.address && ((_variant$metadata = variant.metadata) === null || _variant$metadata === void 0 ? void 0 : _variant$metadata.type) === 'path';
+    });
+    if (match && ((_match$metadata = match.metadata) === null || _match$metadata === void 0 ? void 0 : _match$metadata.type) === 'path') {
+      var _match$wallet$derivat, _match$wallet$derivat2;
+      const path = ((_match$wallet$derivat = match.wallet.derivation) === null || _match$wallet$derivat === void 0 ? void 0 : _match$wallet$derivat.path) || SOLANA_DERIVATION_PATHS.phantom;
+      const index = extractIndexFromPath(path);
+      const label = (_match$wallet$derivat2 = match.wallet.derivation) === null || _match$wallet$derivat2 === void 0 ? void 0 : _match$wallet$derivat2.label;
+      await updateStoredWallet(accountId, 'solana', {
+        derivation: {
+          path,
+          index,
+          label
+        }
+      });
+    }
+  }
+  return chainVariants;
+}
+async function createSubWallet(chain, accountId, password) {
+  const account = await fetchStoredAccount(accountId);
+  if (!('mnemonicEncrypted' in account)) {
+    return {
+      error: api_types/* ApiCommonError */.QD.Unexpected
+    };
+  }
+  const wallet = account.byChain[chain];
+  if (!wallet || !wallet.derivation) {
+    return {
+      error: api_types/* ApiCommonError */.QD.Unexpected
+    };
+  }
+  const mnemonic = await getMnemonic(accountId, password, account);
+  if (!mnemonic) {
+    return {
+      error: api_types/* ApiCommonError */.QD.InvalidPassword
+    };
+  }
+  const {
+    network
+  } = parseAccountId(accountId);
+  const newWallet = await api_chains[chain].createSubWalletFromDerivation(network, account, mnemonic);
+  if (!newWallet || 'error' in newWallet) {
+    return newWallet;
+  }
+  const accounts = await fetchStoredAccounts();
+  const duplicate = Object.entries(accounts).find(_ref4 => {
+    var _acc$byChain$chain;
+    let [id, acc] = _ref4;
+    return id !== accountId && ((_acc$byChain$chain = acc.byChain[chain]) === null || _acc$byChain$chain === void 0 ? void 0 : _acc$byChain$chain.address) === newWallet.address && acc.type !== 'view';
+  });
+  if (duplicate) {
+    (0,logs/* logDebugError */.SJ)('Duplicate account found', duplicate);
+    return {
+      isNew: false,
+      accountId: duplicate[0]
+    };
+  }
+  const newAccountData = {
+    ...account,
+    byChain: {
+      ...account.byChain,
+      [chain]: newWallet
+    }
+  };
+  const newAccountId = await addAccount(network, newAccountData);
+  auth_onUpdate({
+    type: 'updateAccount',
+    accountId: newAccountId,
+    chain,
+    address: newWallet.address,
+    derivation: newWallet.derivation
+  });
+  void activateAccount(newAccountId, undefined, true);
+  return {
+    isNew: true,
+    address: newWallet.address,
+    derivation: newWallet.derivation,
+    accountId: newAccountId,
+    byChain: getAccountChains(newAccountData)
+  };
+}
+async function addSubWallet(chain, accountId, newWallet, isReplace) {
+  const account = await fetchStoredChainAccount(accountId, chain);
+  const accounts = await fetchStoredAccounts();
+  const duplicate = Object.entries(accounts).find(_ref5 => {
+    var _acc$byChain$chain2;
+    let [id, acc] = _ref5;
+    return id !== accountId && ((_acc$byChain$chain2 = acc.byChain[chain]) === null || _acc$byChain$chain2 === void 0 ? void 0 : _acc$byChain$chain2.address) === newWallet.address && acc.type !== 'view';
+  });
+  if (duplicate) {
+    (0,logs/* logDebugError */.SJ)('Duplicate account found', duplicate);
+    return {
+      isNew: false,
+      accountId: duplicate[0]
+    };
+  }
+  if (!isReplace) {
+    const {
+      network
+    } = parseAccountId(accountId);
+    const newAccount = {
+      ...account,
+      byChain: {
+        ...account.byChain,
+        [chain]: {
+          ...newWallet,
+          index: account.byChain[chain].index,
+          publicKey: newWallet.publicKey || account.byChain[chain].publicKey
+        }
+      }
+    };
+    const newAccountId = await addAccount(network, newAccount);
+    auth_onUpdate({
+      type: 'updateAccount',
+      accountId: newAccountId,
+      chain,
+      address: newWallet.address
+    });
+    void activateAccount(newAccountId);
+    return {
+      isNew: true,
+      address: newWallet.address,
+      accountId: newAccountId,
+      byChain: getAccountChains(newAccount)
+    };
+  }
+  await updateStoredAccount(accountId, {
+    byChain: {
+      ...account.byChain,
+      [chain]: {
+        ...newWallet,
+        index: account.byChain[chain].index,
+        publicKey: newWallet.publicKey || account.byChain[chain].publicKey
+      }
+    }
+  });
+  auth_onUpdate({
+    type: 'updateAccount',
+    accountId,
+    chain,
+    address: newWallet.address,
+    derivation: newWallet.derivation
+  });
+  void activateAccount(accountId);
+  return {
+    isNew: false,
+    accountId
   };
 }
 
@@ -25904,30 +26636,46 @@ function initProtocolManager(onUpdate, env) {
 
 
 
-let initPromise;
-function initApi(onUpdate, initArgs) {
-  const args = typeof initArgs === 'function' ? initArgs() : initArgs;
-  initPromise = init(onUpdate, args);
-}
-async function callApi(fnName) {
-  await initPromise;
-  const parsedRequest = recognizeDappMethod(fnName);
-  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    args[_key - 1] = arguments[_key];
-  }
-  if (parsedRequest.isDapp) {
-    const adapter = getProtocolManager().getAdapter(parsedRequest.protocolType);
-    if (!adapter) {
-      throw new Error('No dApp adapter found for request');
-    }
-    const method = adapter[parsedRequest.fnName].bind(adapter);
 
-    // @ts-ignore
-    return method(...args);
+function createDirectApiConnector() {
+  let initPromise;
+  let runtimeStorage = createStorage();
+  function initApi(onUpdate, initArgs) {
+    const args = typeof initArgs === 'function' ? initArgs() : initArgs;
+    runtimeStorage = createStorage(args.storage);
+    initPromise = withStorage(runtimeStorage, () => init(onUpdate, args));
   }
-  // @ts-ignore
-  return api_methods_namespaceObject[fnName](...args);
+  async function callApi(fnName) {
+    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+    await initPromise;
+    return withStorage(runtimeStorage, async () => {
+      const parsedRequest = recognizeDappMethod(fnName);
+      if (parsedRequest.isDapp) {
+        const adapter = getProtocolManager().getAdapter(parsedRequest.protocolType);
+        if (!adapter) {
+          throw new Error('No dApp adapter found for request');
+        }
+        const method = adapter[parsedRequest.fnName].bind(adapter);
+
+        // @ts-ignore
+        return method(...args);
+      }
+      // @ts-ignore
+      return api_methods_namespaceObject[fnName](...args);
+    });
+  }
+  return {
+    initApi,
+    callApi
+  };
 }
+const defaultConnector = createDirectApiConnector();
+const {
+  initApi,
+  callApi
+} = defaultConnector;
 ;// ./src/util/isViewAccount.ts
 /* unused harmony import specifier */ var DEBUG_VIEW_ACCOUNTS;
 /* unused harmony import specifier */ var IS_EXPLORER;
@@ -26953,6 +27701,8 @@ function createNoopUpdateHandler() {
 }
 class ApiBridge {
   onUpdate;
+  apiConnector = createDirectApiConnector();
+  runtimeStorage;
   initPromise;
   balanceSnapshotByAccountChain = new Map();
   balanceWaitersByAccount = new Map();
@@ -26960,6 +27710,7 @@ class ApiBridge {
   constructor(config) {
     this.config = config;
     this.onUpdate = config.onUpdate ?? createNoopUpdateHandler;
+    this.runtimeStorage = createStorage(resolveApiInitArgs(config).storage);
   }
   async init() {
     if (!this.initPromise) {
@@ -26969,11 +27720,11 @@ class ApiBridge {
   }
   async fetchStoredAccounts() {
     await this.init();
-    return fetchStoredAccounts();
+    return withStorage(this.runtimeStorage, () => fetchStoredAccounts());
   }
   async getCurrentAccountId() {
     await this.init();
-    return getCurrentAccountId();
+    return withStorage(this.runtimeStorage, () => getCurrentAccountId());
   }
   async getBalances(accountId) {
     await this.init();
@@ -27102,22 +27853,22 @@ class ApiBridge {
   }
   async getRecentActivity(accountId, limit, toTimestamp) {
     await this.init();
-    return fetchPastActivities(accountId, limit, undefined, toTimestamp);
+    return withStorage(this.runtimeStorage, () => fetchPastActivities(accountId, limit, undefined, toTimestamp));
   }
   async getTransactionActivity(options) {
     await this.init();
-    return callApi('fetchTransactionById', options);
+    return this.apiConnector.callApi('fetchTransactionById', options);
   }
   async call(name) {
     await this.init();
     for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       args[_key - 1] = arguments[_key];
     }
-    return callApi(name, ...args);
+    return this.apiConnector.callApi(name, ...args);
   }
   async initializeApi() {
-    initApi(this.handleUpdate, this.config.apiInitArgs);
-    await callApi('ping');
+    this.apiConnector.initApi(this.handleUpdate, this.config.apiInitArgs);
+    await this.apiConnector.callApi('ping');
     await this.restorePersistedBalanceSnapshots();
   }
   handleUpdate = update => {
@@ -27144,7 +27895,7 @@ class ApiBridge {
     await this.resolveBalanceWaiters(update.accountId);
   }
   async restorePersistedBalanceSnapshots() {
-    const rawRecords = await storage.getItem(BALANCE_SNAPSHOTS_STORAGE_KEY);
+    const rawRecords = await this.runtimeStorage.getItem(BALANCE_SNAPSHOTS_STORAGE_KEY);
     if (!rawRecords) {
       return;
     }
@@ -27154,8 +27905,8 @@ class ApiBridge {
   }
   async persistBalanceSnapshotRecord(record) {
     this.balanceSnapshotPersistencePromise = this.balanceSnapshotPersistencePromise.then(async () => {
-      const rawRecords = await storage.getItem(BALANCE_SNAPSHOTS_STORAGE_KEY);
-      await storage.setItem(BALANCE_SNAPSHOTS_STORAGE_KEY, {
+      const rawRecords = await this.runtimeStorage.getItem(BALANCE_SNAPSHOTS_STORAGE_KEY);
+      await this.runtimeStorage.setItem(BALANCE_SNAPSHOTS_STORAGE_KEY, {
         ...(rawRecords ?? {}),
         [buildBalanceCacheKey(record.accountId, record.chain)]: record
       });
@@ -27305,6 +28056,9 @@ function areSnapshotBalancesEmpty(balancesByChain) {
 function isMissingCollectibleStateError(err, accountId) {
   return err instanceof TypeError && err.message.startsWith(COLLECTIBLE_STATE_UNAVAILABLE_ERROR_PREFIX) && err.message.includes(`'${accountId}'`);
 }
+function resolveApiInitArgs(config) {
+  return typeof config.apiInitArgs === 'function' ? config.apiInitArgs() : config.apiInitArgs;
+}
 ;// ./headless/runtime/accounts.ts
 
 async function listAccounts(bridge) {
@@ -27425,7 +28179,26 @@ async function restoreApprovalPolicy() {
   return mergeApprovalPolicy(storedPolicy);
 }
 async function persistApprovalPolicy(policy) {
-  await storage.setItem(APPROVAL_POLICY_STORAGE_KEY, cloneApprovalPolicy(policy));
+  return mutateApprovalPolicy(policy);
+}
+async function mutateApprovalPolicy(update) {
+  return storage.mutateItem(APPROVAL_POLICY_STORAGE_KEY, storedPolicy => {
+    const basePolicy = mergeApprovalPolicy(storedPolicy);
+    if (isApprovalPolicyActionShape(update)) {
+      return mergeApprovalPolicy(update);
+    }
+    return mergeApprovalPolicy({
+      ...basePolicy,
+      transfer: {
+        ...basePolicy.transfer,
+        ...update.transfer
+      },
+      signMessage: {
+        ...basePolicy.signMessage,
+        ...update.signMessage
+      }
+    });
+  });
 }
 function cloneApprovalPolicy(policy) {
   return {
@@ -27661,7 +28434,8 @@ async function restoreApprovalRequests(approvalRequests) {
   });
 }
 async function persistApprovalRequests(approvalRequests) {
-  await storage.setItem(APPROVAL_REQUESTS_STORAGE_KEY, Array.from(approvalRequests.values()).map(approvalRequest => cloneApprovalRequest(approvalRequest)));
+  const nextRecords = Array.from(approvalRequests.values()).map(approvalRequest => cloneApprovalRequest(approvalRequest));
+  await storage.mutateItem(APPROVAL_REQUESTS_STORAGE_KEY, storedRecords => mergeApprovalRequestRecords(storedRecords, nextRecords));
 }
 function getPendingApprovalRequest(approvalRequests, id) {
   const approvalRequest = approvalRequests.get(id);
@@ -27731,6 +28505,19 @@ async function rejectApprovalRequest(approvalRequests, id, reason) {
   await persistApprovalRequests(approvalRequests);
   return cloneApprovalRequest(approvalRequest);
 }
+function mergeApprovalRequestRecords(storedRecords, nextRecords) {
+  const merged = new Map();
+  storedRecords === null || storedRecords === void 0 || storedRecords.forEach(approvalRequest => {
+    merged.set(approvalRequest.id, cloneApprovalRequest(approvalRequest));
+  });
+  nextRecords.forEach(approvalRequest => {
+    const currentRecord = merged.get(approvalRequest.id);
+    if (!currentRecord || approvalRequest.updatedAt >= currentRecord.updatedAt) {
+      merged.set(approvalRequest.id, cloneApprovalRequest(approvalRequest));
+    }
+  });
+  return Array.from(merged.values()).sort((left, right) => right.createdAt - left.createdAt).map(approvalRequest => cloneApprovalRequest(approvalRequest));
+}
 ;// ./headless/runtime/autonomousWallet.ts
 
 
@@ -27739,7 +28526,7 @@ async function restoreAutonomousWallet() {
   return normalizeAutonomousWalletProfile(storedProfile);
 }
 async function persistAutonomousWallet(profile) {
-  await storage.setItem(AUTONOMOUS_WALLET_STORAGE_KEY, profile ? {
+  await storage.mutateItem(AUTONOMOUS_WALLET_STORAGE_KEY, () => profile ? {
     ...profile
   } : undefined);
 }
@@ -28098,6 +28885,8 @@ function enrichShares(assets, totalValue) {
   });
 }
 ;// ./headless/runtime/savedAddresses.ts
+/* unused harmony import specifier */ var savedAddresses_storage;
+/* unused harmony import specifier */ var savedAddresses_SAVED_ADDRESSES_STORAGE_KEY;
 
 
 async function restoreSavedAddresses() {
@@ -28105,7 +28894,42 @@ async function restoreSavedAddresses() {
   return stored ? stored.map(cloneSavedAddress) : [];
 }
 async function persistSavedAddresses(addresses) {
-  await storage.setItem(SAVED_ADDRESSES_STORAGE_KEY, addresses.map(cloneSavedAddress));
+  return replaceSavedAddresses(addresses);
+}
+async function replaceSavedAddresses(addresses) {
+  return savedAddresses_storage.mutateItem(savedAddresses_SAVED_ADDRESSES_STORAGE_KEY, () => addresses.map(cloneSavedAddress));
+}
+async function addSavedAddressRecord(name, address, chain) {
+  let addedRecord;
+  const addresses = await storage.mutateItem(SAVED_ADDRESSES_STORAGE_KEY, storedAddresses => {
+    const nextAddresses = storedAddresses ? storedAddresses.map(cloneSavedAddress) : [];
+    addedRecord = addSavedAddress(nextAddresses, name, address, chain);
+    return nextAddresses;
+  });
+  return {
+    record: addedRecord,
+    addresses: addresses.map(cloneSavedAddress)
+  };
+}
+async function removeSavedAddressRecord(address, chain) {
+  const addresses = await storage.mutateItem(SAVED_ADDRESSES_STORAGE_KEY, storedAddresses => {
+    const nextAddresses = storedAddresses ? storedAddresses.map(cloneSavedAddress) : [];
+    removeSavedAddress(nextAddresses, address, chain);
+    return nextAddresses;
+  });
+  return addresses.map(cloneSavedAddress);
+}
+async function updateSavedAddressRecord(name, address, chain) {
+  let updatedRecord;
+  const addresses = await storage.mutateItem(SAVED_ADDRESSES_STORAGE_KEY, storedAddresses => {
+    const nextAddresses = storedAddresses ? storedAddresses.map(cloneSavedAddress) : [];
+    updatedRecord = updateSavedAddress(nextAddresses, name, address, chain);
+    return nextAddresses;
+  });
+  return {
+    record: updatedRecord,
+    addresses: addresses.map(cloneSavedAddress)
+  };
 }
 function listSavedAddresses(addresses) {
   return addresses.map(cloneSavedAddress);
@@ -29153,18 +29977,7 @@ class HeadlessRuntime {
   }
   async setApprovalPolicy(update) {
     this.assertIsInitialized();
-    this.approvalPolicy = mergeApprovalPolicy({
-      ...this.approvalPolicy,
-      transfer: {
-        ...this.approvalPolicy.transfer,
-        ...update.transfer
-      },
-      signMessage: {
-        ...this.approvalPolicy.signMessage,
-        ...update.signMessage
-      }
-    });
-    await persistApprovalPolicy(this.approvalPolicy);
+    this.approvalPolicy = await mutateApprovalPolicy(update);
     return this.getApprovalPolicy();
   }
   listSavedAddresses() {
@@ -29178,8 +29991,11 @@ class HeadlessRuntime {
       chain
     } = _ref0;
     this.assertIsInitialized();
-    const record = addSavedAddress(this.savedAddresses, name, address, chain);
-    await persistSavedAddresses(this.savedAddresses);
+    const {
+      record,
+      addresses
+    } = await addSavedAddressRecord(name, address, chain);
+    this.savedAddresses = addresses;
     return record;
   }
   async removeSavedAddress(_ref1) {
@@ -29188,9 +30004,8 @@ class HeadlessRuntime {
       chain
     } = _ref1;
     this.assertIsInitialized();
-    const result = removeSavedAddress(this.savedAddresses, address, chain);
-    await persistSavedAddresses(this.savedAddresses);
-    return result;
+    this.savedAddresses = await removeSavedAddressRecord(address, chain);
+    return listSavedAddresses(this.savedAddresses);
   }
   async updateSavedAddress(_ref10) {
     let {
@@ -29199,8 +30014,11 @@ class HeadlessRuntime {
       chain
     } = _ref10;
     this.assertIsInitialized();
-    const record = updateSavedAddress(this.savedAddresses, name, address, chain);
-    await persistSavedAddresses(this.savedAddresses);
+    const {
+      record,
+      addresses
+    } = await updateSavedAddressRecord(name, address, chain);
+    this.savedAddresses = addresses;
     return record;
   }
   assertIsInitialized() {
@@ -29735,12 +30553,13 @@ if (__webpack_require__.c[__webpack_require__.s] === module) {
 /* harmony export */   xA: () => (/* binding */ NFT_PAYLOAD_SAFE_MARGIN),
 /* harmony export */   xB: () => (/* binding */ TINY_TOKEN_TRANSFER_REAL_AMOUNT)
 /* harmony export */ });
-/* unused harmony exports ONE_TON, TON_GAS_REAL, RAW_ADDRESS_LENGTH */
+/* unused harmony exports TON_DEFAULT_DERIVATION_PATH, ONE_TON, TON_GAS_REAL, RAW_ADDRESS_LENGTH */
 /* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28732);
 /* harmony import */ var _contracts_JettonStaking_imports_constants__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2702);
 
 
-const TON_BIP39_PATH = 'm/44\'/607\'/0\'';
+const TON_BIP39_PATH = `m/44'/607'/{index}'`;
+const TON_DEFAULT_DERIVATION_PATH = (/* unused pure expression or super */ null && (`m/44'/607'/0'`));
 const NETWORK_CONFIG = {
   mainnet: {
     toncenterUrl: _config__WEBPACK_IMPORTED_MODULE_0__/* .TONCENTER_MAINNET_URL */ ._J8,
@@ -31749,6 +32568,7 @@ let ApiTokenImportError = /*#__PURE__*/function (ApiTokenImportError) {
 /* harmony export */   MVx: () => (/* binding */ DEBUG_MORE),
 /* harmony export */   N7B: () => (/* binding */ UNSTAKE_TON_GRACE_PERIOD),
 /* harmony export */   NFS: () => (/* binding */ VALIDATION_PERIOD_MS),
+/* harmony export */   Niw: () => (/* binding */ IS_ANDROID),
 /* harmony export */   Njc: () => (/* binding */ TRON_TESTNET_API_URL),
 /* harmony export */   NlJ: () => (/* binding */ SOLANA_GASLESS_PAYER_ADDRESS),
 /* harmony export */   Oas: () => (/* binding */ SOLANA_MAINNET_API_KEY),
@@ -31847,6 +32667,7 @@ const IS_EXTENSION = process.env.IS_EXTENSION === '1';
 const IS_FIREFOX_EXTENSION = process.env.IS_FIREFOX_EXTENSION === '1';
 const IS_OPERA_EXTENSION = process.env.IS_OPERA_EXTENSION === '1';
 const IS_PACKAGED_ELECTRON = process.env.IS_PACKAGED_ELECTRON === '1';
+const IS_ANDROID = process.env.PLATFORM_ENV === 'Android';
 const IS_CAPACITOR = process.env.IS_CAPACITOR === '1';
 const IS_ANDROID_DIRECT = process.env.IS_ANDROID_DIRECT === '1';
 const IS_AIR_APP = process.env.IS_AIR_APP === '1';
@@ -31982,7 +32803,7 @@ const CHANGELLY_WAITING_DEADLINE = (/* unused pure expression or super */ null &
 const PROXY_HOSTS = process.env.PROXY_HOSTS;
 const TINY_TRANSFER_MAX_COST = 0.01;
 const IMAGE_CACHE_NAME = (/* unused pure expression or super */ null && (IS_EXPLORER ? 'explorer-image' : 'mtw-image'));
-const LANG_CACHE_NAME = 'mtw-lang-283';
+const LANG_CACHE_NAME = 'mtw-lang-285';
 const LANG_LIST = [{
   langCode: 'en',
   name: 'English',
@@ -35169,6 +35990,10 @@ function logDebugError(message) {
   if (_config__WEBPACK_IMPORTED_MODULE_0__/* .DEBUG */ .Oig) {
     // eslint-disable-next-line no-console
     console.error(`[DEBUG][${message}]`, ...args);
+  }
+  if (_config__WEBPACK_IMPORTED_MODULE_0__/* .IS_AIR_APP */ .gmk && _config__WEBPACK_IMPORTED_MODULE_0__/* .IS_ANDROID */ .Niw) {
+    var _androidApp;
+    (_androidApp = window.androidApp) === null || _androidApp === void 0 || _androidApp.logDebugError(message, JSON.stringify(args, errorReplacer));
   }
 }
 function logDebug(message) {
