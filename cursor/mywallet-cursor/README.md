@@ -7,7 +7,7 @@ It lets Cursor create multichain wallets, check balances, tokens, portfolio valu
 It is based on [**MyTonWallet**](https://mytonwallet.io) — a well-established open-source self-custodial wallet with **10M+** users, audited by **CertiK**.
 
 
-## Install
+## Use My Wallet in Cursor
 
 Use the marketplace file `.cursor-plugin/marketplace.json` or the plugin folder `cursor/mywallet-cursor/`. Add this repository as a plugin source in Cursor, then install **My Wallet** for Cursor. If you are installing from files, use the plugin folder directly.
 

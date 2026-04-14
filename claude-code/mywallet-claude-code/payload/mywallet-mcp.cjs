@@ -2,10 +2,38 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 16698
+(module) {
+
+module.exports = require("node:async_hooks");
+
+/***/ },
+
 /***/ 31421
 (module) {
 
 module.exports = require("node:child_process");
+
+/***/ },
+
+/***/ 77598
+(module) {
+
+module.exports = require("node:crypto");
+
+/***/ },
+
+/***/ 51455
+(module) {
+
+module.exports = require("node:fs/promises");
+
+/***/ },
+
+/***/ 48161
+(module) {
+
+module.exports = require("node:os");
 
 /***/ },
 
@@ -142,8 +170,8 @@ var __webpack_exports__ = {};
 
 ;// external "node:buffer"
 const external_node_buffer_namespaceObject = require("node:buffer");
-;// external "node:crypto"
-const external_node_crypto_namespaceObject = require("node:crypto");
+// EXTERNAL MODULE: external "node:crypto"
+var external_node_crypto_ = __webpack_require__(77598);
 ;// external "node:stream/web"
 const web_namespaceObject = require("node:stream/web");
 // EXTERNAL MODULE: external "node:util"
@@ -154,7 +182,6 @@ var external_node_util_ = __webpack_require__(57975);
 
 
 bootstrapBundleRuntimeGlobals();
-bootstrapBundleRuntimeEnv();
 void runMcpEntry().then(() => {
   process.exit(process.exitCode ?? 0);
 }).catch(error => {
@@ -164,7 +191,7 @@ void runMcpEntry().then(() => {
 async function runMcpEntry() {
   const {
     runHeadlessMcpServer
-  } = await Promise.all(/* import() */[__webpack_require__.e(216), __webpack_require__.e(889)]).then(__webpack_require__.bind(__webpack_require__, 90698));
+  } = await Promise.all(/* import() */[__webpack_require__.e(212), __webpack_require__.e(423)]).then(__webpack_require__.bind(__webpack_require__, 7472));
   await runHeadlessMcpServer(process.argv.slice(2));
 }
 function bootstrapBundleRuntimeGlobals() {
@@ -176,7 +203,7 @@ function bootstrapBundleRuntimeGlobals() {
     DecompressionStream: web_namespaceObject.DecompressionStream
   });
   Object.defineProperty(globalThis, 'crypto', {
-    value: external_node_crypto_namespaceObject.webcrypto,
+    value: external_node_crypto_.webcrypto,
     configurable: true
   });
   if (typeof globalThis.self === 'undefined') {
@@ -185,9 +212,6 @@ function bootstrapBundleRuntimeGlobals() {
       configurable: true
     });
   }
-}
-function bootstrapBundleRuntimeEnv() {
-  process.env.MTW_HEADLESS_BUNDLE_PAYLOAD_DIR = __dirname;
 }
 function formatBundleRuntimeError(error) {
   if (error instanceof Error) {

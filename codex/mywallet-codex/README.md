@@ -7,7 +7,7 @@ It lets Codex create multichain wallets, check balances, tokens, portfolio value
 It is based on [**MyTonWallet**](https://mytonwallet.io) — a well-established open-source self-custodial wallet with **10M+** users, audited by **CertiK**.
 
 
-## Install
+## Use My Wallet in Codex
 
 Use the marketplace file `.agents/plugins/marketplace.json` or the plugin folder `codex/mywallet-codex/`. Copy the marketplace file or its plugin entry into your Codex marketplace setup, make sure the plugin path points to `codex/mywallet-codex/`, then restart Codex and install **My Wallet** for Codex.
 

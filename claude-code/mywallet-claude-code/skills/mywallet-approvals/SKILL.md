@@ -1,11 +1,24 @@
 ---
 name: mywallet-approvals
-description: Use My Wallet on OpenClaw safely for balances, transfer preparation, and approval-aware signing.
+description: Use My Wallet on Claude Code safely for balances, transfer preparation, and approval-aware signing.
 ---
 
-# OpenClaw wallet approvals
+# Claude Code wallet approvals
 
-Use this skill after My Wallet for OpenClaw (`mywallet`) is installed and the Gateway has been restarted.
+This runtime skill is generated from the compiled bundle context artifacts below so hosts consume knowledge through their normal staged `skills/` seam.
+
+- Compiled manifest: `context/context-manifest.json`
+- Compiled markdown: `context/context.md`
+- Source count: 26
+- Primary workflow source: `headless/docs/knowledge/workflows/approvals.md`
+- Workflow family: approvals
+- Routing intents: transfer-preparation, transfer-approval, sign-message
+- Routing hosts: openclaw, claude, claude-code, cursor, codex
+- Proof scenarios: transfer-approval
+
+# Approval-aware wallet workflow
+
+Canonical workflow guidance for approval-aware balance checks, transfer preparation, and signing across supported hosts.
 
 ## Balance checks
 
@@ -31,4 +44,4 @@ Do not imply host-native approval bypasses for transfers. Only `mywallet_approve
 3. Complete the action with `mywallet_approve_approval_request` only after explicit approval.
 4. Use `mywallet_reject_approval_request` when approval is denied.
 
-Keep signing approval-aware even when OpenClaw could show its own confirmation UI.
+Keep signing approval-aware even when the host could show its own confirmation UI.

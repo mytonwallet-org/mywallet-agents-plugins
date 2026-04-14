@@ -7,7 +7,7 @@ It lets Claude Code create multichain wallets, check balances, tokens, portfolio
 It is based on [**MyTonWallet**](https://mytonwallet.io) — a well-established open-source self-custodial wallet with **10M+** users, audited by **CertiK**.
 
 
-## Install
+## Use My Wallet in Claude Code
 
 Use the marketplace file `.claude-plugin/marketplace.json` or the plugin folder `claude-code/mywallet-claude-code/`. Add this repository as a marketplace in Claude Code, then install **My Wallet** for Claude Code. If you are installing from files, use the plugin folder directly.
 

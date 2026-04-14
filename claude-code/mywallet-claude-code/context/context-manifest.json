@@ -1,0 +1,788 @@
+{
+  "version": 2,
+  "host": "claude-code",
+  "generatedBy": "compileSharedAgentContext",
+  "bundleRelativeRoot": "context",
+  "artifactPaths": {
+    "manifest": "context/context-manifest.json",
+    "markdown": "context/context.md",
+    "runtimeSkillsManifest": "context/runtime-skills-manifest.json"
+  },
+  "sourceCount": 26,
+  "sources": [
+    {
+      "order": 0,
+      "kind": "playbook-page",
+      "relativePath": "headless/docs/knowledge/playbook/agent-operating-loop.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 1,
+      "kind": "playbook-page",
+      "relativePath": "headless/docs/knowledge/playbook/routing-principles.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 2,
+      "kind": "playbook-page",
+      "relativePath": "headless/docs/knowledge/playbook/host-boundaries.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 3,
+      "kind": "workflow-page",
+      "relativePath": "headless/docs/knowledge/workflows/onboarding.md",
+      "documentKind": "workflow",
+      "family": "onboarding",
+      "routing": {
+        "intents": [
+          "create-wallet",
+          "receive-address",
+          "first-funding"
+        ],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": [
+          "onboarding-topup"
+        ]
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 4,
+      "kind": "workflow-page",
+      "relativePath": "headless/docs/knowledge/workflows/approvals.md",
+      "documentKind": "workflow",
+      "family": "approvals",
+      "routing": {
+        "intents": [
+          "transfer-preparation",
+          "transfer-approval",
+          "sign-message"
+        ],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": [
+          "transfer-approval"
+        ]
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 5,
+      "kind": "knowledge-page",
+      "relativePath": "headless/docs/knowledge/autonomy-and-approvals.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 6,
+      "kind": "knowledge-page",
+      "relativePath": "headless/docs/knowledge/collectibles.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 7,
+      "kind": "knowledge-page",
+      "relativePath": "headless/docs/knowledge/pricing-and-market-data.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 8,
+      "kind": "knowledge-page",
+      "relativePath": "headless/docs/knowledge/saved-addresses.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 9,
+      "kind": "knowledge-page",
+      "relativePath": "headless/docs/knowledge/security-and-scam-prevention.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 10,
+      "kind": "knowledge-page",
+      "relativePath": "headless/docs/knowledge/sending-and-receiving.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 11,
+      "kind": "knowledge-page",
+      "relativePath": "headless/docs/knowledge/tokens-and-assets.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 12,
+      "kind": "knowledge-page",
+      "relativePath": "headless/docs/knowledge/transaction-history.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 13,
+      "kind": "knowledge-page",
+      "relativePath": "headless/docs/knowledge/wallet-setup-and-recovery.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 14,
+      "kind": "guidance-page",
+      "relativePath": "headless/docs/knowledge/guidance/portfolio.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 15,
+      "kind": "guidance-page",
+      "relativePath": "headless/docs/knowledge/guidance/saved-addresses.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 16,
+      "kind": "guidance-page",
+      "relativePath": "headless/docs/knowledge/guidance/security.md",
+      "documentKind": "guidance",
+      "family": "security",
+      "routing": {
+        "intents": [
+          "mnemonic-safety",
+          "recovery",
+          "scam-prevention"
+        ],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": [
+          "security-recovery"
+        ]
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 17,
+      "kind": "guidance-page",
+      "relativePath": "headless/docs/knowledge/guidance/staking.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 18,
+      "kind": "guidance-page",
+      "relativePath": "headless/docs/knowledge/guidance/swaps.md",
+      "documentKind": "guidance",
+      "family": "swaps",
+      "routing": {
+        "intents": [
+          "swap-assets",
+          "swap-estimate",
+          "swap-boundaries"
+        ],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": [
+          "swap-boundaries"
+        ]
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 19,
+      "kind": "direct-kb-page",
+      "relativePath": "headless/docs/knowledge/knowledge-base/concepts/blockchain-basics.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 20,
+      "kind": "direct-kb-page",
+      "relativePath": "headless/docs/knowledge/knowledge-base/concepts/gas-fees.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 21,
+      "kind": "direct-kb-page",
+      "relativePath": "headless/docs/knowledge/knowledge-base/concepts/staking-explained.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 22,
+      "kind": "direct-kb-page",
+      "relativePath": "headless/docs/knowledge/knowledge-base/concepts/swaps-explained.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 23,
+      "kind": "direct-kb-page",
+      "relativePath": "headless/docs/knowledge/knowledge-base/concepts/wallets-explained.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 24,
+      "kind": "direct-kb-page",
+      "relativePath": "headless/docs/knowledge/knowledge-base/resources.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    },
+    {
+      "order": 25,
+      "kind": "direct-kb-page",
+      "relativePath": "headless/docs/knowledge/knowledge-base/security/scam-protection.md",
+      "routing": {
+        "intents": [],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": []
+      },
+      "hostApplicability": {
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ],
+        "includesCurrentHost": true
+      }
+    }
+  ],
+  "families": {
+    "onboarding": [
+      3
+    ],
+    "approvals": [
+      4
+    ],
+    "security": [
+      16
+    ],
+    "swaps": [
+      18
+    ]
+  }
+}

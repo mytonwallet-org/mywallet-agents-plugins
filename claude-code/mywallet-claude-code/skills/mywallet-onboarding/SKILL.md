@@ -1,17 +1,30 @@
 ---
 name: mywallet-onboarding
-description: Use My Wallet on OpenClaw for wallet creation, address lookup, top-up guidance, and first-use balance checks.
+description: Use My Wallet on Claude Code for wallet creation, address lookup, top-up guidance, and first-use balance checks.
 ---
 
-# OpenClaw wallet onboarding
+# Claude Code wallet onboarding
 
-Use this skill after My Wallet for OpenClaw (`mywallet`) is installed and the Gateway has been restarted.
+This runtime skill is generated from the compiled bundle context artifacts below so hosts consume knowledge through their normal staged `skills/` seam.
+
+- Compiled manifest: `context/context-manifest.json`
+- Compiled markdown: `context/context.md`
+- Source count: 26
+- Primary workflow source: `headless/docs/knowledge/workflows/onboarding.md`
+- Workflow family: onboarding
+- Routing intents: create-wallet, receive-address, first-funding
+- Routing hosts: openclaw, claude, claude-code, cursor, codex
+- Proof scenarios: onboarding-topup
+
+# Wallet onboarding workflow
+
+Canonical workflow guidance for chat-first wallet onboarding across supported hosts.
 
 ## Start with restored state
 
 1. Call `mywallet_status` first to inspect restored runtime state.
 2. If a wallet already exists, continue with the active account instead of creating a replacement wallet.
-3. If no wallet exists and the user wants a new one, call `mywallet_create_wallet`.
+3. If no wallet exists and the user wants a new one, call `mywallet_create_wallet` with the user-provided password.
 4. Tell the user that `mywallet_create_wallet` returns mnemonic-bearing custody material and that they must store it safely.
 
 ## Show a receive address
@@ -28,5 +41,5 @@ Use this skill after My Wallet for OpenClaw (`mywallet`) is installed and the Ga
 
 ## When the conversation moves beyond onboarding
 
-- Keep this skill receive-side and first-use focused.
-- When the user wants to spend funds or sign data, switch to the approval-aware flow from `mywallet-approvals`.
+- Keep this workflow receive-side and first-use focused.
+- When the user wants to spend funds or sign data, switch to the approval-aware flow from `workflows/approvals.md`.

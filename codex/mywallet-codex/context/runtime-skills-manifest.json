@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "host": "codex",
+  "generatedBy": "generateRuntimeSkillArtifacts",
+  "bundleRelativeRoot": "skills",
+  "compiledContextArtifactPaths": {
+    "manifest": "context/context-manifest.json",
+    "markdown": "context/context.md"
+  },
+  "skills": [
+    {
+      "name": "mywallet-onboarding",
+      "relativePath": "skills/mywallet-onboarding/SKILL.md",
+      "kind": "canonical-workflow",
+      "family": "onboarding",
+      "source": {
+        "relativePath": "headless/docs/knowledge/workflows/onboarding.md",
+        "family": "onboarding",
+        "documentKind": "workflow",
+        "sourceKind": "workflow-page"
+      },
+      "routing": {
+        "intents": [
+          "create-wallet",
+          "receive-address",
+          "first-funding"
+        ],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": [
+          "onboarding-topup"
+        ]
+      }
+    },
+    {
+      "name": "mywallet-approvals",
+      "relativePath": "skills/mywallet-approvals/SKILL.md",
+      "kind": "canonical-workflow",
+      "family": "approvals",
+      "source": {
+        "relativePath": "headless/docs/knowledge/workflows/approvals.md",
+        "family": "approvals",
+        "documentKind": "workflow",
+        "sourceKind": "workflow-page"
+      },
+      "routing": {
+        "intents": [
+          "transfer-preparation",
+          "transfer-approval",
+          "sign-message"
+        ],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": [
+          "transfer-approval"
+        ]
+      }
+    },
+    {
+      "name": "mywallet-generated-onboarding-topup",
+      "relativePath": "skills/mywallet-generated-onboarding-topup/SKILL.md",
+      "kind": "generated-scenario",
+      "family": "onboarding",
+      "scenario": {
+        "id": "onboarding-topup"
+      },
+      "source": {
+        "relativePath": "headless/docs/knowledge/workflows/onboarding.md",
+        "family": "onboarding",
+        "documentKind": "workflow",
+        "sourceKind": "workflow-page"
+      },
+      "routing": {
+        "intents": [
+          "create-wallet",
+          "receive-address",
+          "first-funding"
+        ],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": [
+          "onboarding-topup"
+        ]
+      }
+    },
+    {
+      "name": "mywallet-generated-transfer-approval",
+      "relativePath": "skills/mywallet-generated-transfer-approval/SKILL.md",
+      "kind": "generated-scenario",
+      "family": "approvals",
+      "scenario": {
+        "id": "transfer-approval"
+      },
+      "source": {
+        "relativePath": "headless/docs/knowledge/workflows/approvals.md",
+        "family": "approvals",
+        "documentKind": "workflow",
+        "sourceKind": "workflow-page"
+      },
+      "routing": {
+        "intents": [
+          "transfer-preparation",
+          "transfer-approval",
+          "sign-message"
+        ],
+        "hosts": [
+          "openclaw",
+          "claude",
+          "claude-code",
+          "cursor",
+          "codex"
+        ]
+      },
+      "proof": {
+        "scenarios": [
+          "transfer-approval"
+        ]
+      }
+    }
+  ]
+}
