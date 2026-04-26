@@ -1,0 +1,6 @@
+{
+  "name": "mywallet",
+  "description": "My Wallet bundle for OpenClaw with bundled wallet workflow skills",
+  "skills": "skills",
+  "mcpServers": "./.mcp.json"
+}

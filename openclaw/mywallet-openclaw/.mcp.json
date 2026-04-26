@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mywallet": {
+      "command": "node",
+      "args": [
+        "./launcher/run-mywallet-mcp.cjs",
+        "--api-init-json",
+        "{\"storage\":{\"type\":\"nodeFile\",\"profile\":\"mywallet\"}}"
+      ]
+    }
+  }
+}

@@ -9,7 +9,7 @@
     {
       "id": "mywallet",
       "name": "My Wallet for Claude Code",
-      "version": "4.8.5",
+      "version": "4.8.7",
       "path": "../claude-code/mywallet-claude-code"
     }
   ]

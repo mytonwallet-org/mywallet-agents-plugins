@@ -242,8 +242,8 @@ async function verifyLedgerTonAddress(network, wallet) {
     return handleLedgerTonError(err);
   }
 }
-// EXTERNAL MODULE: ./src/api/chains/ton/util/tonCore.ts + 4 modules
-var tonCore = __webpack_require__(96497);
+// EXTERNAL MODULE: ./src/api/chains/ton/util/tonCore.ts + 3 modules
+var tonCore = __webpack_require__(89631);
 ;// ./src/api/chains/ton/ledger/transactions.ts
 
 

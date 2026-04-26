@@ -2,16 +2,17 @@
 
 My Wallet Agents is based on [MyTonWallet](https://mytonwallet.io) — a well-established open-source self-custodial wallet with 10M+ users, audited by CertiK.
 
-My Wallet Agents Plugins is a public collection of My Wallet plugins for Cursor, Claude Code, and Codex.
+My Wallet Agents Plugins is a public collection of My Wallet plugins for Cursor, Claude Code, Codex, and OpenClaw.
 
 Website: <https://agents.mywallet.io>
 
-Version: 4.8.5
+Version: 4.8.7
 
 ## Available plugins
 - **Cursor** — use `.cursor-plugin/marketplace.json` or `cursor/mywallet-cursor/`
 - **Claude Code** — use `.claude-plugin/marketplace.json` or `claude-code/mywallet-claude-code/`
 - **Codex** — use `.agents/plugins/marketplace.json` or `codex/mywallet-codex/`
+- **OpenClaw** — install from ClawHub or use `openclaw/mywallet-openclaw/`
 
 ## Quick start
 1. Choose the app you want to use.

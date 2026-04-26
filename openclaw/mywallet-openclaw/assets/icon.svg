@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title>My Wallet for OpenClaw icon</title>
+  <desc>Rounded dark card with a cyan wallet glyph and OpenClaw label</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#081826" />
+      <stop offset="100%" stop-color="#10324a" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#2ce6ff" />
+      <stop offset="100%" stop-color="#4cffb6" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bg)" />
+  <rect x="92" y="140" width="328" height="228" rx="44" fill="#0f2232" stroke="#2ce6ff" stroke-width="16" />
+  <path d="M146 214c0-17.673 14.327-32 32-32h172c17.673 0 32 14.327 32 32v80c0 17.673-14.327 32-32 32H178c-17.673 0-32-14.327-32-32v-80Z" fill="url(#accent)" opacity="0.18" />
+  <rect x="278" y="225" width="94" height="58" rx="26" fill="#09131d" stroke="#4cffb6" stroke-width="10" />
+  <circle cx="336" cy="254" r="10" fill="#4cffb6" />
+  <path d="M170 198h126" stroke="#7ee8ff" stroke-width="18" stroke-linecap="round" />
+  <path d="M126 400h260" stroke="#7ee8ff" stroke-opacity="0.65" stroke-width="16" stroke-linecap="round" />
+  <text x="256" y="456" text-anchor="middle" fill="#d8f7ff" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">My Wallet for OpenClaw</text>
+</svg>

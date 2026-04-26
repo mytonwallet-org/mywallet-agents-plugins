@@ -20,6 +20,7 @@ const external_node_util_namespaceObject = require("node:util");
 
 
 bootstrapBundleRuntimeGlobals();
+bootstrapBundleRuntimeEnv();
 void runCliEntry().then(() => {
   process.exit(process.exitCode ?? 0);
 }).catch(error => {
@@ -29,7 +30,7 @@ void runCliEntry().then(() => {
 async function runCliEntry() {
   const {
     runHeadlessCli
-  } = await Promise.all(/* import() */[__webpack_require__.e(760), __webpack_require__.e(212), __webpack_require__.e(385)]).then(__webpack_require__.bind(__webpack_require__, 74385));
+  } = await Promise.all(/* import() */[__webpack_require__.e(755), __webpack_require__.e(221), __webpack_require__.e(918)]).then(__webpack_require__.bind(__webpack_require__, 80918));
   await runHeadlessCli(process.argv.slice(2));
 }
 function bootstrapBundleRuntimeGlobals() {
@@ -50,6 +51,9 @@ function bootstrapBundleRuntimeGlobals() {
       configurable: true
     });
   }
+}
+function bootstrapBundleRuntimeEnv() {
+  process.env.MTW_HEADLESS_BUNDLE_PAYLOAD_DIR = __dirname;
 }
 function formatBundleRuntimeError(error) {
   if (error instanceof Error) {
@@ -120,13 +124,6 @@ module.exports = require("net");
 
 /***/ },
 
-/***/ 16698
-(module) {
-
-module.exports = require("node:async_hooks");
-
-/***/ },
-
 /***/ 4573
 (module) {
 
@@ -138,20 +135,6 @@ module.exports = require("node:buffer");
 (module) {
 
 module.exports = require("node:crypto");
-
-/***/ },
-
-/***/ 51455
-(module) {
-
-module.exports = require("node:fs/promises");
-
-/***/ },
-
-/***/ 48161
-(module) {
-
-module.exports = require("node:os");
 
 /***/ },
 

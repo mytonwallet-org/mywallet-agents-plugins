@@ -1,0 +1,41 @@
+{
+  "name": "mywallet",
+  "version": "4.8.6",
+  "description": "My Wallet for OpenClaw bundle with local MCP wiring, approval-aware wallet tools, and bundled workflow skills.",
+  "license": "GPL-3.0-or-later",
+  "author": "My Wallet",
+  "homepage": "https://mytonwallet.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mytonwallet-org/mytonwallet.git",
+    "directory": "headless/platforms/openclaw/bundle"
+  },
+  "bugs": {
+    "url": "https://github.com/mytonwallet-org/mytonwallet/issues"
+  },
+  "keywords": [
+    "openclaw",
+    "clawhub",
+    "bundle",
+    "wallet",
+    "ton",
+    "mcp"
+  ],
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "files": [
+    ".codex-plugin",
+    ".mcp.json",
+    "README.md",
+    "PUBLISHING.md",
+    "assets",
+    "context",
+    "launcher",
+    "payload",
+    "skills"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
