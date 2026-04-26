@@ -1,6 +1,6 @@
 {
   "name": "mywallet",
-  "version": "4.8.6",
+  "version": "4.8.7",
   "description": "My Wallet for OpenClaw bundle with local MCP wiring, approval-aware wallet tools, and bundled workflow skills.",
   "license": "GPL-3.0-or-later",
   "author": "My Wallet",
