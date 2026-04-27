@@ -1,6 +1,6 @@
 {
   "name": "mywallet-openclaw-bundle-payload",
-  "version": "4.8.8",
+  "version": "4.8.9",
   "private": true,
   "description": "Bundled My Wallet CLI and MCP launch payload for the OpenClaw bundle"
 }

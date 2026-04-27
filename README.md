@@ -6,7 +6,7 @@ My Wallet Agents Plugins is a public collection of My Wallet plugins for Cursor,
 
 Website: <https://agents.mywallet.io>
 
-Version: 4.8.8
+Version: 4.8.9
 
 ## Available plugins
 - **Cursor** — use `.cursor-plugin/marketplace.json` or `cursor/mywallet-cursor/`

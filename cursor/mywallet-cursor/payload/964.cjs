@@ -708,7 +708,7 @@ async function mutateHeadlessStoredItem(key, mutate) {
 }
 function resolveHeadlessStoragePath() {
   var _process$env$STORAGE_;
-  const configuredPath = (_process$env$STORAGE_ = undefined) === null || _process$env$STORAGE_ === void 0 ? void 0 : _process$env$STORAGE_.trim();
+  const configuredPath = (_process$env$STORAGE_ = {"APP_ENV":"test"}.STORAGE_FILENAME) === null || _process$env$STORAGE_ === void 0 ? void 0 : _process$env$STORAGE_.trim();
   return configuredPath || '.mywallet/storage.json';
 }
 ;// ./headless/runtime/autonomyMode.ts
@@ -22281,7 +22281,7 @@ const TONCONNECT_UNIVERSAL_URL = 'https://connect.mytonwallet.org';
 const CHECKIN_URL = 'https://checkin.mytonwallet.org';
 const WALLETCONNECT_PROTOCOL = 'wc:';
 ;// ./package.json
-const package_namespaceObject = {"version":"4.8.8"};
+const package_namespaceObject = {"version":"4.8.9"};
 ;// ./src/util/tonConnectEnvironment.ts
 
 
@@ -33247,6 +33247,7 @@ let ApiTokenImportError = /*#__PURE__*/function (ApiTokenImportError) {
 /* harmony export */   X6R: () => (/* binding */ TELEGRAM_GIFTS_SUPER_COLLECTION),
 /* harmony export */   X7L: () => (/* binding */ DNS_IMAGE_GEN_URL),
 /* harmony export */   X7T: () => (/* binding */ TRX),
+/* harmony export */   XYx: () => (/* binding */ WINDOW_PROVIDER_PORT),
 /* harmony export */   Zax: () => (/* binding */ SOLANA),
 /* harmony export */   _$E: () => (/* binding */ PROXY_API_BASE_URL),
 /* harmony export */   _Hh: () => (/* binding */ SOLANA_TESTNET_API_KEY),
@@ -33290,15 +33291,15 @@ let ApiTokenImportError = /*#__PURE__*/function (ApiTokenImportError) {
 /* harmony export */   xrY: () => (/* binding */ MYCOIN_STAKING_POOL),
 /* harmony export */   yTE: () => (/* binding */ SWAP_FEE_ADDRESS)
 /* harmony export */ });
-/* unused harmony exports APP_COMMIT_HASH, APP_ENV_MARKER, EXTENSION_NAME, EXTENSION_DESCRIPTION, DEBUG_API, DEBUG_VIEW_ACCOUNTS, TEST_MNEMONIC, TEST_PASSWORD, IS_PRODUCTION, IS_TEST, IS_PERF, IS_FIREFOX_EXTENSION, IS_OPERA_EXTENSION, IS_PACKAGED_ELECTRON, IS_EXPLORER, ELECTRON_HOST_URL, INACTIVE_MARKER, PRODUCTION_URL, BETA_URL, APP_INSTALL_URL, APP_REPO_URL, SELF_UNIVERSAL_HOST_URL, BASE_URL, BOT_USERNAME, STRICTERDOM_ENABLED, PIN_LENGTH, NATIVE_BIOMETRICS_USERNAME, NATIVE_BIOMETRICS_SERVER, NATIVE_BIOMETRICS_PROMPT_KEY, MNEMONIC_COUNT, MNEMONIC_COUNTS, MNEMONIC_CHECK_COUNT, MOBILE_SCREEN_MAX_WIDTH, VIEW_TRANSITION_CLASS_NAME, ANIMATION_END_DELAY, ANIMATED_STICKER_TINY_ICON_PX, ANIMATED_STICKER_ICON_PX, ANIMATED_STICKER_TINY_SIZE_PX, ANIMATED_STICKER_SMALL_SIZE_PX, ANIMATED_STICKER_MIDDLE_SIZE_PX, ANIMATED_STICKER_DEFAULT_PX, ANIMATED_STICKER_BIG_SIZE_PX, ANIMATED_STICKER_HUGE_SIZE_PX, DEFAULT_PORTRAIT_WINDOW_SIZE, DEFAULT_LANDSCAPE_WINDOW_SIZE, DEFAULT_LANDSCAPE_ACTION_TAB_ID, TRANSACTION_ADDRESS_SHIFT, WHOLE_PART_DELIMITER, DEFAULT_SLIPPAGE_VALUE, GLOBAL_STATE_CACHE_DISABLED, GLOBAL_STATE_CACHE_KEY, ANIMATION_LEVEL_MIN, ANIMATION_LEVEL_MED, ANIMATION_LEVEL_MAX, ANIMATION_LEVEL_DEFAULT, THEME_DEFAULT, TEMPORARY_ACCOUNT_NAME, WALLET_CONNECT_BRIDGE_PATTERNS, FRACTION_DIGITS, SHORT_FRACTION_DIGITS, MAX_PUSH_NOTIFICATIONS_ACCOUNT_COUNT, SUPPORT_USERNAME, MTW_NEWS_CHANNEL_NAME, MTW_TIPS_CHANNEL_NAME, NFT_MARKETPLACE_TITLES, MTW_STATIC_BASE_URL, MTW_CARDS_BASE_URL, MTW_CARDS_MINT_BASE_URL, MYTONWALLET_PROMO_URL, MYTONWALLET_BLOG, MYTONWALLET_TERMS_OF_USE_URL, MYTONWALLET_PRIVACY_POLICY_URL, MULTISEND_DAPP_URL, PORTFOLIO_DAPP_URL, AGENT_API_URL, NFT_MARKETPLACE_URL, NFT_MARKETPLACE_TITLE, GETGEMS_BASE_MAINNET_URL, GETGEMS_BASE_TESTNET_URL, EMPTY_HASH_VALUE, IFRAME_WHITELIST, SUBPROJECT_URL_MASK, CHANGELLY_SUPPORT_EMAIL, CHANGELLY_LIVE_CHAT_URL, CHANGELLY_SECURITY_EMAIL, CHANGELLY_TERMS_OF_USE, CHANGELLY_PRIVACY_POLICY, CHANGELLY_AML_KYC, CHANGELLY_WAITING_DEADLINE, PROXY_HOSTS, IMAGE_CACHE_NAME, LANG_CACHE_NAME, LANG_LIST, STAKING_MIN_AMOUNT, NOMINATORS_STAKING_MIN_AMOUNT, STAKING_SLUG_PREFIX, TONCONNECT_WALLET_JSBRIDGE_KEY, EMBEDDED_DAPP_BRIDGE_CHANNEL, MTW_CARDS_WEBSITE, TON_DNS_RENEWAL_WARNING_DAYS, TON_DNS_RENEWAL_NFT_WARNING_DAYS, STAKED_TON_SLUG, STAKED_MYCOIN_SLUG, ETHENA_STAKING_MIN_AMOUNT, ETHENA_ELIGIBILITY_CHECK_URL, TOKEN_CUSTOM_STYLES, ALL_STAKING_POOLS, INIT_SWAP_ASSETS, DEFAULT_SWAP_FIRST_TOKEN_SLUG, DEFAULT_SWAP_SECOND_TOKEN_SLUG, DEFAULT_SWAP_AMOUNT, DEFAULT_TRANSFER_TOKEN_SLUG, SWAP_DEX_LABELS, ACTIVE_TAB_STORAGE_KEY, WINDOW_PROVIDER_PORT, SHOULD_SHOW_ALL_ASSETS_AND_ACTIVITY, PORTRAIT_MIN_ASSETS_TAB_VIEW, LANDSCAPE_MIN_ASSETS_TAB_VIEW, CURRENCIES, HISTORY_PERIODS, BROWSER_HISTORY_LIMIT, BURN_CHUNK_DURATION_APPROX_SEC, CLAIM_ADDRESS, CLAIM_AMOUNT, CLAIM_COMMENT, MINT_CARD_ADDRESS, MINT_CARD_COMMENT, MINT_CARD_REFUND_COMMENT, STARS_SYMBOL, GIVEAWAY_CHECKIN_URL, AUTOLOCK_OPTIONS_LIST, AUTO_CONFIRM_DURATION_MINUTES, STAKED_TOKEN_SLUGS, DEFAULT_OUR_SWAP_FEE, DEFAULT_STAKING_STATE, DEFAULT_NOMINATORS_STAKING_STATE, JVAULT_URL, HELP_CENTER_URL, RENEWABLE_TON_DNS_COLLECTIONS, DEFAULT_AUTOLOCK_OPTION, WRONG_ATTEMPTS_BEFORE_LOG_OUT_SUGGESTION, DEFAULT_CHAIN */
+/* unused harmony exports APP_COMMIT_HASH, APP_ENV_MARKER, EXTENSION_NAME, EXTENSION_DESCRIPTION, DEBUG_API, DEBUG_VIEW_ACCOUNTS, TEST_MNEMONIC, TEST_PASSWORD, IS_PRODUCTION, IS_TEST, IS_PERF, IS_FIREFOX_EXTENSION, IS_OPERA_EXTENSION, IS_PACKAGED_ELECTRON, IS_EXPLORER, ELECTRON_HOST_URL, INACTIVE_MARKER, PRODUCTION_URL, BETA_URL, APP_INSTALL_URL, APP_REPO_URL, SELF_UNIVERSAL_HOST_URL, BASE_URL, BOT_USERNAME, STRICTERDOM_ENABLED, PIN_LENGTH, NATIVE_BIOMETRICS_USERNAME, NATIVE_BIOMETRICS_SERVER, NATIVE_BIOMETRICS_PROMPT_KEY, MNEMONIC_COUNT, MNEMONIC_COUNTS, MNEMONIC_CHECK_COUNT, MOBILE_SCREEN_MAX_WIDTH, VIEW_TRANSITION_CLASS_NAME, ANIMATION_END_DELAY, ANIMATED_STICKER_TINY_ICON_PX, ANIMATED_STICKER_ICON_PX, ANIMATED_STICKER_TINY_SIZE_PX, ANIMATED_STICKER_SMALL_SIZE_PX, ANIMATED_STICKER_MIDDLE_SIZE_PX, ANIMATED_STICKER_DEFAULT_PX, ANIMATED_STICKER_BIG_SIZE_PX, ANIMATED_STICKER_HUGE_SIZE_PX, DEFAULT_PORTRAIT_WINDOW_SIZE, DEFAULT_LANDSCAPE_WINDOW_SIZE, DEFAULT_LANDSCAPE_ACTION_TAB_ID, TRANSACTION_ADDRESS_SHIFT, WHOLE_PART_DELIMITER, DEFAULT_SLIPPAGE_VALUE, GLOBAL_STATE_CACHE_DISABLED, GLOBAL_STATE_CACHE_KEY, ANIMATION_LEVEL_MIN, ANIMATION_LEVEL_MED, ANIMATION_LEVEL_MAX, ANIMATION_LEVEL_DEFAULT, THEME_DEFAULT, TEMPORARY_ACCOUNT_NAME, WALLET_CONNECT_BRIDGE_PATTERNS, FRACTION_DIGITS, SHORT_FRACTION_DIGITS, MAX_PUSH_NOTIFICATIONS_ACCOUNT_COUNT, SUPPORT_USERNAME, MTW_NEWS_CHANNEL_NAME, MTW_TIPS_CHANNEL_NAME, NFT_MARKETPLACE_TITLES, MTW_STATIC_BASE_URL, MTW_CARDS_BASE_URL, MTW_CARDS_MINT_BASE_URL, MYTONWALLET_PROMO_URL, MYTONWALLET_BLOG, MYTONWALLET_TERMS_OF_USE_URL, MYTONWALLET_PRIVACY_POLICY_URL, MULTISEND_DAPP_URL, PORTFOLIO_DAPP_URL, AGENT_API_URL, NFT_MARKETPLACE_URL, NFT_MARKETPLACE_TITLE, GETGEMS_BASE_MAINNET_URL, GETGEMS_BASE_TESTNET_URL, EMPTY_HASH_VALUE, IFRAME_WHITELIST, SUBPROJECT_URL_MASK, CHANGELLY_SUPPORT_EMAIL, CHANGELLY_LIVE_CHAT_URL, CHANGELLY_SECURITY_EMAIL, CHANGELLY_TERMS_OF_USE, CHANGELLY_PRIVACY_POLICY, CHANGELLY_AML_KYC, CHANGELLY_WAITING_DEADLINE, PROXY_HOSTS, IMAGE_CACHE_NAME, LANG_CACHE_NAME, LANG_LIST, STAKING_MIN_AMOUNT, NOMINATORS_STAKING_MIN_AMOUNT, STAKING_SLUG_PREFIX, TONCONNECT_WALLET_JSBRIDGE_KEY, EMBEDDED_DAPP_BRIDGE_CHANNEL, MTW_CARDS_WEBSITE, TON_DNS_RENEWAL_WARNING_DAYS, TON_DNS_RENEWAL_NFT_WARNING_DAYS, STAKED_TON_SLUG, STAKED_MYCOIN_SLUG, ETHENA_STAKING_MIN_AMOUNT, ETHENA_ELIGIBILITY_CHECK_URL, TOKEN_CUSTOM_STYLES, ALL_STAKING_POOLS, INIT_SWAP_ASSETS, DEFAULT_SWAP_FIRST_TOKEN_SLUG, DEFAULT_SWAP_SECOND_TOKEN_SLUG, DEFAULT_SWAP_AMOUNT, DEFAULT_TRANSFER_TOKEN_SLUG, SWAP_DEX_LABELS, ACTIVE_TAB_STORAGE_KEY, SHOULD_SHOW_ALL_ASSETS_AND_ACTIVITY, PORTRAIT_MIN_ASSETS_TAB_VIEW, LANDSCAPE_MIN_ASSETS_TAB_VIEW, CURRENCIES, HISTORY_PERIODS, BROWSER_HISTORY_LIMIT, BURN_CHUNK_DURATION_APPROX_SEC, CLAIM_ADDRESS, CLAIM_AMOUNT, CLAIM_COMMENT, MINT_CARD_ADDRESS, MINT_CARD_COMMENT, MINT_CARD_REFUND_COMMENT, STARS_SYMBOL, GIVEAWAY_CHECKIN_URL, AUTOLOCK_OPTIONS_LIST, AUTO_CONFIRM_DURATION_MINUTES, STAKED_TOKEN_SLUGS, DEFAULT_OUR_SWAP_FEE, DEFAULT_STAKING_STATE, DEFAULT_NOMINATORS_STAKING_STATE, JVAULT_URL, HELP_CENTER_URL, RENEWABLE_TON_DNS_COLLECTIONS, DEFAULT_AUTOLOCK_OPTION, WRONG_ATTEMPTS_BEFORE_LOG_OUT_SUGGESTION, DEFAULT_CHAIN */
 var _process$env$TEST_MNE;
 /* eslint-disable @stylistic/max-len */
 
-const APP_ENV = "test" || 0;
-const IS_CORE_WALLET = undefined === '1';
-const APP_NAME =  false || (IS_CORE_WALLET ? 'TON Wallet' : 'MyTonWallet');
-const APP_VERSION = undefined;
-const APP_COMMIT_HASH = (/* unused pure expression or super */ null && (undefined));
+const APP_ENV = {"APP_ENV":"test"}.APP_ENV || 'production';
+const IS_CORE_WALLET = {"APP_ENV":"test"}.IS_CORE_WALLET === '1';
+const APP_NAME = {"APP_ENV":"test"}.APP_NAME || (IS_CORE_WALLET ? 'TON Wallet' : 'MyTonWallet');
+const APP_VERSION = {"APP_ENV":"test"}.APP_VERSION;
+const APP_COMMIT_HASH = {"APP_ENV":"test"}.APP_COMMIT_HASH;
 const APP_ENV_MARKER = APP_ENV === 'staging' ? 'Beta' : APP_ENV === 'development' ? 'Dev' : undefined;
 const EXTENSION_NAME = (/* unused pure expression or super */ null && (IS_CORE_WALLET ? 'TON Wallet' : 'MyTonWallet · My TON Wallet'));
 const EXTENSION_DESCRIPTION = (/* unused pure expression or super */ null && (IS_CORE_WALLET ? 'Set up your own TON Wallet on The Open Network' : 'The most feature-rich TON+TRON wallet: multi-accounts, multi-send, Telegram Gifts and other collectibles, TON DNS+Proxy, and more.'));
@@ -33306,34 +33307,34 @@ const DEBUG = APP_ENV !== 'production' && APP_ENV !== 'perf' && APP_ENV !== 'tes
 const DEBUG_MORE = false;
 const DEBUG_API = false;
 const DEBUG_VIEW_ACCOUNTS = false;
-const TEST_MNEMONIC = (_process$env$TEST_MNE = undefined) === null || _process$env$TEST_MNE === void 0 ? void 0 : _process$env$TEST_MNE.trim();
-const TEST_PASSWORD = (/* unused pure expression or super */ null && ( false || 'test'));
+const TEST_MNEMONIC = (_process$env$TEST_MNE = {"APP_ENV":"test"}.TEST_MNEMONIC) === null || _process$env$TEST_MNE === void 0 ? void 0 : _process$env$TEST_MNE.trim();
+const TEST_PASSWORD = {"APP_ENV":"test"}.TEST_PASSWORD || 'test';
 const IS_PRODUCTION = APP_ENV === 'production';
 const IS_TEST = APP_ENV === 'test';
 const IS_PERF = APP_ENV === 'perf';
-const IS_EXTENSION = undefined === '1';
-const IS_FIREFOX_EXTENSION = (/* unused pure expression or super */ null && (undefined === '1'));
-const IS_OPERA_EXTENSION = (/* unused pure expression or super */ null && (undefined === '1'));
-const IS_PACKAGED_ELECTRON = undefined === '1';
-const IS_ANDROID = undefined === 'Android';
-const IS_CAPACITOR = undefined === '1';
-const IS_ANDROID_DIRECT = undefined === '1';
-const IS_AIR_APP = undefined === '1';
-const IS_TELEGRAM_APP = undefined === '1';
-const IS_EXPLORER = undefined === '1';
+const IS_EXTENSION = {"APP_ENV":"test"}.IS_EXTENSION === '1';
+const IS_FIREFOX_EXTENSION = {"APP_ENV":"test"}.IS_FIREFOX_EXTENSION === '1';
+const IS_OPERA_EXTENSION = {"APP_ENV":"test"}.IS_OPERA_EXTENSION === '1';
+const IS_PACKAGED_ELECTRON = {"APP_ENV":"test"}.IS_PACKAGED_ELECTRON === '1';
+const IS_ANDROID = {"APP_ENV":"test"}.PLATFORM_ENV === 'Android';
+const IS_CAPACITOR = {"APP_ENV":"test"}.IS_CAPACITOR === '1';
+const IS_ANDROID_DIRECT = {"APP_ENV":"test"}.IS_ANDROID_DIRECT === '1';
+const IS_AIR_APP = {"APP_ENV":"test"}.IS_AIR_APP === '1';
+const IS_TELEGRAM_APP = {"APP_ENV":"test"}.IS_TELEGRAM_APP === '1';
+const IS_EXPLORER = {"APP_ENV":"test"}.IS_EXPLORER === '1';
 const ELECTRON_HOST_URL = 'https://dumb-host';
 const INACTIVE_MARKER = '[Inactive]';
-const PRODUCTION_URL = (/* unused pure expression or super */ null && (IS_CORE_WALLET ? 'https://wallet.ton.org' : 'https://mytonwallet.app'));
+const PRODUCTION_URL = IS_CORE_WALLET ? 'https://wallet.ton.org' : 'https://mytonwallet.app';
 const BETA_URL = (/* unused pure expression or super */ null && (IS_CORE_WALLET ? 'https://beta.wallet.ton.org' : 'https://beta.mytonwallet.app'));
 const APP_INSTALL_URL = 'https://get.mytonwallet.io/';
 const APP_REPO_URL = 'https://github.com/mytonwallet-org/mytonwallet';
 const SELF_UNIVERSAL_HOST_URL = 'https://my.tt';
 
 // GitHub workflow uses an empty string as the default value if it's not in repository variables, so we cannot define a default value here
-const BASE_URL = (/* unused pure expression or super */ null && ( false || PRODUCTION_URL));
-const BOT_USERNAME = (/* unused pure expression or super */ null && ( false || 'MyTonWalletBot'));
-const SWAP_FEE_ADDRESS =  false || 'UQDUkQbpTVIgt7v66-JTFR-3-eXRFz_4V66F-Ufn6vOg0GOp';
-const DIESEL_ADDRESS =  false || 'UQC9lQOaEHC6YASiJJ2NrKEOlITMMQmc8j0_iZEHy-4sl3tG';
+const BASE_URL = {"APP_ENV":"test"}.BASE_URL || PRODUCTION_URL;
+const BOT_USERNAME = {"APP_ENV":"test"}.BOT_USERNAME || 'MyTonWalletBot';
+const SWAP_FEE_ADDRESS = {"APP_ENV":"test"}.SWAP_FEE_ADDRESS || 'UQDUkQbpTVIgt7v66-JTFR-3-eXRFz_4V66F-Ufn6vOg0GOp';
+const DIESEL_ADDRESS = {"APP_ENV":"test"}.DIESEL_ADDRESS || 'UQC9lQOaEHC6YASiJJ2NrKEOlITMMQmc8j0_iZEHy-4sl3tG';
 const STRICTERDOM_ENABLED = DEBUG && !IS_PACKAGED_ELECTRON;
 const DEBUG_ALERT_MSG = 'Shoot!\nSomething went wrong, please see the error details in Dev Tools Console.';
 const PIN_LENGTH = 4;
@@ -33381,29 +33382,29 @@ const ANIMATION_LEVEL_DEFAULT = (/* unused pure expression or super */ null && (
 const THEME_DEFAULT = 'system';
 const MAIN_ACCOUNT_ID = '0-ton-mainnet';
 const TEMPORARY_ACCOUNT_NAME = 'Wallet';
-const TONCENTER_MAINNET_URL =  false || 'https://toncenter.mytonwallet.org';
-const TONCENTER_MAINNET_KEY = undefined;
-const ELECTRON_TONCENTER_MAINNET_KEY = undefined;
-const TONAPIIO_MAINNET_URL =  false || 'https://tonapiio.mytonwallet.org';
-const TONCENTER_TESTNET_URL =  false || 'https://toncenter-testnet.mytonwallet.org';
-const TONCENTER_TESTNET_KEY = undefined;
-const ELECTRON_TONCENTER_TESTNET_KEY = undefined;
-const TONAPIIO_TESTNET_URL =  false || 'https://tonapiio-testnet.mytonwallet.org';
-const BRILLIANT_API_BASE_URL =  false || 'https://api.mytonwallet.org';
-const PROXY_API_BASE_URL =  false || 'https://api.mytonwallet.org/proxy';
+const TONCENTER_MAINNET_URL = {"APP_ENV":"test"}.TONCENTER_MAINNET_URL || 'https://toncenter.mytonwallet.org';
+const TONCENTER_MAINNET_KEY = {"APP_ENV":"test"}.TONCENTER_MAINNET_KEY;
+const ELECTRON_TONCENTER_MAINNET_KEY = {"APP_ENV":"test"}.ELECTRON_TONCENTER_MAINNET_KEY;
+const TONAPIIO_MAINNET_URL = {"APP_ENV":"test"}.TONAPIIO_MAINNET_URL || 'https://tonapiio.mytonwallet.org';
+const TONCENTER_TESTNET_URL = {"APP_ENV":"test"}.TONCENTER_TESTNET_URL || 'https://toncenter-testnet.mytonwallet.org';
+const TONCENTER_TESTNET_KEY = {"APP_ENV":"test"}.TONCENTER_TESTNET_KEY;
+const ELECTRON_TONCENTER_TESTNET_KEY = {"APP_ENV":"test"}.ELECTRON_TONCENTER_TESTNET_KEY;
+const TONAPIIO_TESTNET_URL = {"APP_ENV":"test"}.TONAPIIO_TESTNET_URL || 'https://tonapiio-testnet.mytonwallet.org';
+const BRILLIANT_API_BASE_URL = {"APP_ENV":"test"}.BRILLIANT_API_BASE_URL || 'https://api.mytonwallet.org';
+const PROXY_API_BASE_URL = {"APP_ENV":"test"}.PROXY_API_BASE_URL || 'https://api.mytonwallet.org/proxy';
 const IPFS_GATEWAY_BASE_URL = 'https://ipfs.io/ipfs/';
 const SSE_BRIDGE_URL = 'https://tonconnectbridge.mytonwallet.org/bridge/';
 const WALLET_CONNECT_BRIDGE_PATTERNS = 'https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org';
-const WALLET_CONNECT_PROJECT_ID =  false || '';
-const TRON_MAINNET_API_URL =  false || 'https://tronapi.mytonwallet.org';
-const TRON_TESTNET_API_URL =  false || 'https://api.shasta.trongrid.io';
-const SOLANA_MAINNET_RPC_URL =  false || 'https://solanaapi.mytonwallet.org';
-const SOLANA_MAINNET_API_KEY = undefined;
-const SOLANA_TESTNET_RPC_URL =  false || 'https://solanaapi-devnet.mytonwallet.org';
-const SOLANA_TESTNET_API_KEY = undefined;
-const SOLANA_TESTNET_API_URL =  false || 'https://solanaapi-devnet.mytonwallet.org';
-const SOLANA_MAINNET_API_URL =  false || 'https://solanaapi.mytonwallet.org';
-const SOLANA_GASLESS_PAYER_ADDRESS =  false || 'BkVfRKjZnnYCcRBgXBsfaWFZFidBL9drm5MZwNqoNGCu';
+const WALLET_CONNECT_PROJECT_ID = {"APP_ENV":"test"}.WALLET_CONNECT_PROJECT_ID || '';
+const TRON_MAINNET_API_URL = {"APP_ENV":"test"}.TRON_MAINNET_API_URL || 'https://tronapi.mytonwallet.org';
+const TRON_TESTNET_API_URL = {"APP_ENV":"test"}.TRON_TESTNET_API_URL || 'https://api.shasta.trongrid.io';
+const SOLANA_MAINNET_RPC_URL = {"APP_ENV":"test"}.SOLANA_MAINNET_RPC_URL || 'https://solanaapi.mytonwallet.org';
+const SOLANA_MAINNET_API_KEY = {"APP_ENV":"test"}.SOLANA_MAINNET_API_KEY;
+const SOLANA_TESTNET_RPC_URL = {"APP_ENV":"test"}.SOLANA_TESTNET_RPC_URL || 'https://solanaapi-devnet.mytonwallet.org';
+const SOLANA_TESTNET_API_KEY = {"APP_ENV":"test"}.SOLANA_TESTNET_API_KEY;
+const SOLANA_TESTNET_API_URL = {"APP_ENV":"test"}.SOLANA_TESTNET_API_URL || 'https://solanaapi-devnet.mytonwallet.org';
+const SOLANA_MAINNET_API_URL = {"APP_ENV":"test"}.SOLANA_MAINNET_API_URL || 'https://solanaapi.mytonwallet.org';
+const SOLANA_GASLESS_PAYER_ADDRESS = {"APP_ENV":"test"}.SOLANA_GASLESS_PAYER_ADDRESS || 'BkVfRKjZnnYCcRBgXBsfaWFZFidBL9drm5MZwNqoNGCu';
 const FRACTION_DIGITS = 9;
 const SHORT_FRACTION_DIGITS = 2;
 const MAX_PUSH_NOTIFICATIONS_ACCOUNT_COUNT = 3;
@@ -33430,9 +33431,9 @@ const MYTONWALLET_BLOG = {
 };
 const MYTONWALLET_TERMS_OF_USE_URL = 'https://mytonwallet.io/terms-of-use';
 const MYTONWALLET_PRIVACY_POLICY_URL = 'https://mytonwallet.io/privacy-policy';
-const MULTISEND_DAPP_URL = (/* unused pure expression or super */ null && ( false || 'https://multisend.mytonwallet.io/'));
-const PORTFOLIO_DAPP_URL =  false || 'https://portfolio.mytonwallet.io/';
-const AGENT_API_URL = (/* unused pure expression or super */ null && ( false || 'https://agent.mytonwallet.org/api'));
+const MULTISEND_DAPP_URL = {"APP_ENV":"test"}.MULTISEND_DAPP_URL || 'https://multisend.mytonwallet.io/';
+const PORTFOLIO_DAPP_URL = {"APP_ENV":"test"}.PORTFOLIO_DAPP_URL || 'https://portfolio.mytonwallet.io/';
+const AGENT_API_URL = {"APP_ENV":"test"}.AGENT_API_URL || 'https://agent.mytonwallet.org/api';
 const NFT_MARKETPLACE_URL = 'https://getgems.io/';
 const NFT_MARKETPLACE_TITLE = NFT_MARKETPLACE_TITLES.getgems;
 const GETGEMS_BASE_MAINNET_URL = 'https://getgems.io/';
@@ -33448,7 +33449,7 @@ const CHANGELLY_PRIVACY_POLICY = 'https://changelly.com/privacy-policy';
 const CHANGELLY_AML_KYC = 'https://changelly.com/aml-kyc';
 const CHANGELLY_WAITING_DEADLINE = (/* unused pure expression or super */ null && (3 * 60 * 60 * 1000)); // 3 hours
 
-const PROXY_HOSTS = (/* unused pure expression or super */ null && (undefined));
+const PROXY_HOSTS = {"APP_ENV":"test"}.PROXY_HOSTS;
 const TINY_TRANSFER_MAX_COST = 0.01;
 const IMAGE_CACHE_NAME = (/* unused pure expression or super */ null && (IS_EXPLORER ? 'explorer-image' : 'mtw-image'));
 const LANG_CACHE_NAME = 'mtw-lang-285';
@@ -33509,9 +33510,9 @@ const ONE_TON = 1_000_000_000n;
 const DEFAULT_FEE = 15_000_000n; // 0.015 TON
 const UNSTAKE_TON_GRACE_PERIOD = 20 * 60 * 1000; // 20 m.
 
-const STAKING_POOLS =  false ? 0 : [];
-const LIQUID_POOL =  false || 'EQD2_4d91M4TVbEBVyBF8J1UwpMJc361LKVCz6bBlffMW05o';
-const LIQUID_JETTON =  false || 'EQCqC6EhRJ_tpWngKxL6dV0k6DSnRUrs9GSVkLbfdCqsj6TE';
+const STAKING_POOLS = {"APP_ENV":"test"}.STAKING_POOLS ? {"APP_ENV":"test"}.STAKING_POOLS.split(' ') : [];
+const LIQUID_POOL = {"APP_ENV":"test"}.LIQUID_POOL || 'EQD2_4d91M4TVbEBVyBF8J1UwpMJc361LKVCz6bBlffMW05o';
+const LIQUID_JETTON = {"APP_ENV":"test"}.LIQUID_JETTON || 'EQCqC6EhRJ_tpWngKxL6dV0k6DSnRUrs9GSVkLbfdCqsj6TE';
 const STAKING_MIN_AMOUNT = (/* unused pure expression or super */ null && (ONE_TON));
 const NOMINATORS_STAKING_MIN_AMOUNT = 10_000n * ONE_TON;
 const MIN_ACTIVE_STAKING_REWARDS = 100_000_000n; // 0.1 MY
@@ -33695,7 +33696,7 @@ const ACTIVE_TAB_STORAGE_KEY = (/* unused pure expression or super */ null && (I
 const INDEXED_DB_NAME = IS_EXPLORER ? 'explorer-keyval-store' : 'keyval-store';
 const INDEXED_DB_STORE_NAME = 'keyval';
 const WINDOW_PROVIDER_CHANNEL = 'windowProvider';
-const WINDOW_PROVIDER_PORT = (/* unused pure expression or super */ null && (`${IS_CORE_WALLET ? 'TonWallet' : 'MyTonWallet'}_popup_reversed`));
+const WINDOW_PROVIDER_PORT = `${IS_CORE_WALLET ? 'TonWallet' : 'MyTonWallet'}_popup_reversed`;
 const SHOULD_SHOW_ALL_ASSETS_AND_ACTIVITY = (/* unused pure expression or super */ null && (IS_CORE_WALLET));
 const PORTRAIT_MIN_ASSETS_TAB_VIEW = 6;
 const LANDSCAPE_MIN_ASSETS_TAB_VIEW = 6;
@@ -33758,7 +33759,7 @@ const MINT_CARD_REFUND_COMMENT = 'Refund';
 const RE_LINK_TEMPLATE = /((ftp|https?):\/\/)?(?<host>(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z][-a-zA-Z0-9]{1,62})\b([-a-zA-Z0-9()@:%_+.,~#?&/=]*)/g;
 const RE_TG_BOT_MENTION = /(telegram|tg)[:\s-]*@[a-z0-9_]+|(https?:\/\/)?(t\.me|telegram\.me|telegram\.dog)\/[a-z0-9_]+/mi;
 const STARS_SYMBOL = '⭐️';
-const GIVEAWAY_CHECKIN_URL = (/* unused pure expression or super */ null && ( false || 'https://giveaway.mytonwallet.io'));
+const GIVEAWAY_CHECKIN_URL = {"APP_ENV":"test"}.GIVEAWAY_CHECKIN_URL || 'https://giveaway.mytonwallet.io';
 const AUTOLOCK_OPTIONS_LIST = [{
   value: 'never',
   name: 'Disabled',
@@ -37422,8 +37423,10 @@ let connector;
 function initWindowConnector() {
   if (!connector) {
     // We use the raw extension env flag instead of IS_EXTENSION so bundling can remove irrelevant code.
-    if (false) // removed by dead control flow
-{} else {
+    if ({"APP_ENV":"test"}.IS_EXTENSION) {
+      connector = createReverseExtensionConnector(config/* WINDOW_PROVIDER_PORT */.XYx);
+      // connector.init() is not called here because the extension connector is available only when the popup is open
+    } else {
       connector = createConnector(self, undefined, config/* WINDOW_PROVIDER_CHANNEL */.Pcx);
       void connector.init();
     }
