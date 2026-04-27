@@ -1,6 +1,6 @@
 {
   "name": "mywallet-claude-code-offering-payload",
-  "version": "4.8.7",
+  "version": "4.8.8",
   "private": true,
   "description": "Bundled My Wallet CLI and MCP launch payload for the direct-install Claude Code offering"
 }

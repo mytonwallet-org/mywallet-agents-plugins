@@ -22281,7 +22281,7 @@ const TONCONNECT_UNIVERSAL_URL = 'https://connect.mytonwallet.org';
 const CHECKIN_URL = 'https://checkin.mytonwallet.org';
 const WALLETCONNECT_PROTOCOL = 'wc:';
 ;// ./package.json
-const package_namespaceObject = {"version":"4.8.7"};
+const package_namespaceObject = {"version":"4.8.8"};
 ;// ./src/util/tonConnectEnvironment.ts
 
 
