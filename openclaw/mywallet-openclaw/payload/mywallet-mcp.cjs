@@ -191,7 +191,7 @@ void runMcpEntry().then(() => {
 async function runMcpEntry() {
   const {
     runHeadlessMcpServer
-  } = await Promise.all(/* import() */[__webpack_require__.e(212), __webpack_require__.e(423)]).then(__webpack_require__.bind(__webpack_require__, 7472));
+  } = await Promise.all(/* import() */[__webpack_require__.e(984), __webpack_require__.e(409)]).then(__webpack_require__.bind(__webpack_require__, 86863));
   await runHeadlessMcpServer(process.argv.slice(2));
 }
 function bootstrapBundleRuntimeGlobals() {
