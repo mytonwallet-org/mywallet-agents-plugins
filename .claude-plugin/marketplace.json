@@ -1,27 +1,16 @@
 {
-  "name": "mywallet-agents-plugins",
-  "description": "My Wallet plugins for Claude Code",
-  "owner": {
-    "name": "My Wallet"
+  "schemaVersion": 1,
+  "schema": "claude-code-marketplace-v1",
+  "sourceOfTruth": {
+    "repository": "my-headless/scope-integrations",
+    "publishCommand": "npm run headless:publish-plugins"
   },
   "plugins": [
     {
-      "name": "mywallet",
-      "source": "./claude-code/mywallet-claude-code",
-      "description": "My Wallet shared Open Plugins root with local MCP wiring and wallet workflow skills",
-      "version": "4.8.9",
-      "author": {
-        "name": "My Wallet"
-      },
-      "homepage": "https://agents.mywallet.io/",
-      "license": "GPL-3.0-or-later",
-      "keywords": [
-        "wallet",
-        "ton",
-        "mywallet",
-        "mcp",
-        "open-plugins"
-      ]
+      "id": "mywallet",
+      "name": "My Wallet for Claude Code",
+      "version": "4.9.4",
+      "path": "../claude-code/mywallet-claude-code"
     }
   ]
 }

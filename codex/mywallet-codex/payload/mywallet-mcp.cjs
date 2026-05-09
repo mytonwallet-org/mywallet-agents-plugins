@@ -2,13 +2,6 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 16698
-(module) {
-
-module.exports = require("node:async_hooks");
-
-/***/ },
-
 /***/ 31421
 (module) {
 
@@ -81,6 +74,18 @@ module.exports = require("node:util");
 /******/ 	__webpack_require__.m = __webpack_modules__;
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
@@ -118,6 +123,17 @@ module.exports = require("node:util");
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	(() => {
 /******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/require chunk loading */
@@ -191,7 +207,7 @@ void runMcpEntry().then(() => {
 async function runMcpEntry() {
   const {
     runHeadlessMcpServer
-  } = await Promise.all(/* import() */[__webpack_require__.e(984), __webpack_require__.e(409)]).then(__webpack_require__.bind(__webpack_require__, 86863));
+  } = await Promise.all(/* import() */[__webpack_require__.e(955), __webpack_require__.e(377)]).then(__webpack_require__.bind(__webpack_require__, 5154));
   await runHeadlessMcpServer(process.argv.slice(2));
 }
 function bootstrapBundleRuntimeGlobals() {
