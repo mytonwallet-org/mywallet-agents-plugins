@@ -3,7 +3,7 @@
     "mywallet": {
       "command": "node",
       "args": [
-        "${PLUGIN_ROOT}/launcher/run-mywallet-mcp.cjs",
+        "${CLAUDE_PLUGIN_ROOT}/launcher/run-mywallet-mcp.cjs",
         "--api-init-json",
         "{\"storage\":{\"type\":\"nodeFile\",\"profile\":\"mywallet\"}}"
       ]
