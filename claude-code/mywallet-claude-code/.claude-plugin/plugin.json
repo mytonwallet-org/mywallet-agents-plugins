@@ -3,9 +3,9 @@
   "description": "My Wallet shared Open Plugins root with local MCP wiring and wallet workflow skills",
   "author": {
     "name": "My Wallet",
-    "url": "https://mywallet.io"
+    "url": "https://agents.mywallet.io/"
   },
-  "homepage": "https://mywallet.io",
+  "homepage": "https://agents.mywallet.io/",
   "license": "GPL-3.0-or-later",
   "logo": "assets/icon.svg",
   "keywords": [
