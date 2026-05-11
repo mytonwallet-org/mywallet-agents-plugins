@@ -11,4 +11,9 @@ It is based on [**MyTonWallet**](https://mytonwallet.io) — a well-established 
 
 Use the marketplace file `.claude-plugin/marketplace.json` or the plugin folder `claude-code/mywallet-claude-code/`. Add this repository as a marketplace in Claude Code, then install **My Wallet** for Claude Code. If you are installing from files, use the plugin folder directly.
 
+```
+/plugin marketplace add mytonwallet-org/mywallet-agents-plugins
+/plugin install mywallet-claude-code
+```
+
 Website: [agents.mywallet.io](https://agents.mywallet.io)
